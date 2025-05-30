@@ -1,0 +1,84 @@
+<html lang="en">
+<head>
+    
+    <%- include("includes/head") %>
+    <title>Dynamic Decks, Inc</title>
+</head>
+<%- include("includes/sticky") %>
+<header>
+    
+    <%- include("includes/header") %>
+</header>
+<body>
+    <div class="video-wrapper team-photo">
+
+        <video playsinline autoplay muted loop>
+            <source src="<%= content.hero %>" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+            
+        <div class="headerVid">
+            <br>
+            <h1 class="title" id="main-title"><%= content.header %></h1>
+        </div>
+    </div>
+    <main>
+        <% if(content.page == "decks") { %>
+            <%- include("includes/deck-info") %>
+        <% } %>
+        <%- include("includes/content") %>
+    </main>
+</body>
+<footer>
+    <%- include("includes/footer") %>
+</footer>
+</html>
+
+<script>
+    //For scrolling elements n stuff
+function reveal() {
+    var reveals = document.querySelectorAll(".reveal");
+    for (var i = 0; i < reveals.length; i++) {
+        var windowHeight = window.innerHeight;
+        var elementTop = reveals[i].getBoundingClientRect().top;
+        var elementVisible = 40;
+        if (elementTop < windowHeight - elementVisible) {
+        reveals[i].classList.add("active");
+        } else {
+        reveals[i].classList.remove("active");
+        }
+    }
+    numberAnimate();
+}
+
+//animated numbers
+function numberAnimate() {
+    var numberAnimations = document.querySelectorAll(".number-animate");
+    var interval = 300;
+
+    numberAnimations.forEach(( numberAnimation ) => {
+        if(!numberAnimation.classList.contains("active"))
+        {
+            numberAnimation.innerHTML="0";
+        }
+        if((numberAnimation.classList.contains("active"))
+        &&(numberAnimation.innerHTML=="0"))
+        {
+            var startValue = 0;
+            var finalValue = parseInt(numberAnimation.getAttribute("data-val"));
+            var duration = finalValue/interval;
+            var counter = setInterval( function () {
+                startValue += duration;
+                numberAnimation.innerHTML = Math.ceil(startValue);
+                if(startValue>=finalValue)
+                {
+                    numberAnimation.innerHTML = finalValue;
+                    clearInterval(counter);
+                }
+            }, 1);
+        }
+    });
+}
+
+window.addEventListener("scroll", reveal);
+</script>

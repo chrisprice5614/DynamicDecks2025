@@ -1,0 +1,370 @@
+<%
+const contentArray = JSON.parse(content.content);
+%>
+
+<% if (!user) { %>
+  <% contentArray.forEach(contentPiece => {
+    if (typeof contentPiece.background === 'undefined') {
+      contentPiece.background = 'background-color: white;';
+    }
+    if (typeof contentPiece.color === 'undefined') {
+      contentPiece.color = 'black';
+    }
+    if (typeof contentPiece.shadow === 'undefined') {
+      contentPiece.shadow = false;
+    }
+  %>
+    <div class="content" style="<%= contentPiece.background %>">
+      <div></div>
+      <div style="<%= contentPiece.type === 'button' ? 'text-align: center;' : '' %>">
+        <% if (contentPiece.type === 'h1') { %>
+          <br><h1 style="color:<%= contentPiece.color %>; <% if (contentPiece.shadow) { %>text-shadow: 0px 0px 8px #000;<% } %>"><%= contentPiece.content %></h1>
+        <% } else if (contentPiece.type === 'p') { %>
+          <br><p style="color:<%= contentPiece.color %>; <% if (contentPiece.shadow) { %>text-shadow: 0px 0px 8px #000;<% } %>"><%= contentPiece.content %></p>
+          <br>
+        <% } else if (contentPiece.type === 'button') { %>
+          <br><a href="<%= contentPiece.link %>">
+            <button class="quote-button" style="color:<%= contentPiece.color %>"><%= contentPiece.content %></button>
+          </a>
+          <br>
+        <% } else if (contentPiece.type === 'youtube') { %>
+          <br>
+          <div class="youtube-wrapper" style="text-align: center;">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/<%= contentPiece.videoId %>" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <br>
+        <% } else if (contentPiece.type === 'img') { %>
+          <br>
+          <div class="photo-border">
+            <div class="img-zoom">
+              <img src="<%= contentPiece.src %>" style="min-width: 100%; min-height: 100px;" />
+            </div>
+          </div>
+          <br>
+        <% } %>
+      </div>
+      <div></div>
+    </div>
+  <% }) %>
+<% } else { %>
+  <!-- Admin interface below -->
+  <div class="content">
+    <div></div>
+    <div>
+      <h2>Change Content</h2>
+
+      <label for="new-title">New Title:</label>
+      <input type="text" id="new-title" placeholder="Enter new title" />
+      <button onclick="updateTitle()">Submit Title</button>
+
+      <br><br>
+
+      <label for="image-upload">Upload Image:</label>
+      <input type="file" id="image-upload" accept="image/*" />
+      <button onclick="uploadImage()">Upload Image</button>
+
+      <br><br>
+
+      <label for="video-upload">Upload Video:</label>
+      <input type="file" id="video-upload" accept="video/*" />
+      <button onclick="uploadVideo()">Upload Video</button>
+    </div>
+    <div></div>
+  </div>
+
+  <div id="contentContainer"></div>
+
+  <div class="content">
+    <div></div>
+    <div style="text-align: center;">
+      <div class="pallete">
+        <button class="quote-button">Add Content <ion-icon name="add-circle-outline"></ion-icon></button>
+        <button class="quote-button">Save <ion-icon name="save-outline"></ion-icon></button>
+      </div>
+    </div>
+    <div></div>
+  </div>
+
+  <script>
+    let contentArray = <%- JSON.stringify(contentArray) %>
+    let backgroundImages = [];
+    let allImages = [];
+
+    async function fetchBackgrounds() {
+      const res = await fetch('/img/ui');
+      const list = await res.json();
+      backgroundImages = list.map(file => '/img/ui/' + file);
+    }
+
+    async function fetchAllImages() {
+      const res = await fetch('/allimg');
+      const list = await res.json();
+      allImages = list.map(file => file);
+    }
+
+    function extractVideoId(url) {
+      const match = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&\n?#]+)/);
+      return match ? match[1] : null;
+    }
+
+    function buildContent(contentArray) {
+      const container = document.getElementById('contentContainer');
+      container.innerHTML = '';
+
+      contentArray.forEach((item, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'content';
+        wrapper.style = item.background || 'background-color: white;';
+
+        const left = document.createElement('div');
+        const center = document.createElement('div');
+        center.style.textAlign = 'center';
+        const right = document.createElement('div');
+
+        let contentElement;
+
+        if (item.type === 'h1') {
+          contentElement = document.createElement('input');
+          contentElement.type = 'text';
+          contentElement.className = 'input-h1 edit-input';
+          contentElement.value = item.content;
+          contentElement.oninput = () => item.content = contentElement.value;
+        } else if (item.type === 'p') {
+          contentElement = document.createElement('textarea');
+          contentElement.className = 'input-p edit-input';
+          contentElement.value = item.content;
+          contentElement.oninput = () => item.content = contentElement.value;
+        } else if (item.type === 'button') {
+          contentElement = document.createElement('div');
+          const btn = document.createElement('button');
+          btn.textContent = item.content || 'Click Me';
+          btn.className = 'quote-button editable-button';
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = 'Button text';
+          input.value = item.content || '';
+          input.oninput = () => {
+            item.content = input.value;
+            btn.textContent = input.value;
+          };
+
+          const linkInput = document.createElement('input');
+          linkInput.type = 'text';
+          linkInput.placeholder = 'Button link';
+          linkInput.value = item.link || '';
+          linkInput.className = 'button-link-input';
+          linkInput.oninput = () => item.link = linkInput.value;
+
+          contentElement.appendChild(btn);
+          contentElement.appendChild(document.createElement('br'));
+          contentElement.appendChild(input);
+          contentElement.appendChild(document.createElement('br'));
+          contentElement.appendChild(linkInput);
+        } else if (item.type === 'youtube') {
+          contentElement = document.createElement('div');
+          const iframe = document.createElement('iframe');
+          iframe.width = '560';
+          iframe.height = '315';
+          iframe.frameBorder = '0';
+          iframe.allowFullscreen = true;
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = 'Paste YouTube URL';
+          input.value = item.link || '';
+          input.style.width = '100%';
+
+          function updateIframe() {
+            const videoId = extractVideoId(input.value);
+            item.link = input.value;
+            item.videoId = videoId;
+            iframe.src = videoId ? `https://www.youtube.com/embed/${videoId}` : '';
+          }
+
+          input.addEventListener('input', updateIframe);
+          updateIframe();
+
+          contentElement.appendChild(iframe);
+          contentElement.appendChild(input);
+        } else if (item.type === 'img') {
+          contentElement = document.createElement('div');
+          const img = document.createElement('img');
+          img.src = item.src || '';
+          img.style.maxWidth = '100%';
+          img.style.maxHeight = '400px';
+          img.className = 'photo-border img-zoom';
+
+          const thumbWrapper = document.createElement('div');
+          thumbWrapper.className = 'thumbnail-wrapper';
+
+          allImages.forEach(src => {
+            const thumb = document.createElement('img');
+            thumb.src = src;
+            thumb.className = 'thumbnail';
+            if (src === item.src) thumb.classList.add('selected-thumbnail');
+            thumb.onclick = () => {
+              item.src = src;
+              img.src = src;
+              thumbWrapper.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('selected-thumbnail'));
+              thumb.classList.add('selected-thumbnail');
+            };
+            thumbWrapper.appendChild(thumb);
+          });
+
+          contentElement.appendChild(img);
+          contentElement.appendChild(document.createElement('br'));
+          contentElement.appendChild(thumbWrapper);
+        }
+
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.value = item.color || '#000000';
+        colorInput.oninput = () => {
+          item.color = colorInput.value;
+          contentElement.style.color = colorInput.value;
+        };
+
+        const shadowCheckbox = document.createElement('input');
+        shadowCheckbox.type = 'checkbox';
+        shadowCheckbox.checked = item.shadow || false;
+        shadowCheckbox.onchange = () => {
+          item.shadow = shadowCheckbox.checked;
+          buildContent(contentArray);
+        };
+
+        const bgPreview = document.createElement('div');
+        bgPreview.className = 'thumbnail-wrapper';
+
+        const noneOption = document.createElement('div');
+        noneOption.textContent = 'No BG';
+        noneOption.className = 'thumbnail';
+        noneOption.style.background = 'white';
+        noneOption.onclick = () => {
+          item.background = 'background-color: white;';
+          buildContent(contentArray);
+        };
+        bgPreview.appendChild(noneOption);
+
+        backgroundImages.forEach(path => {
+          const thumb = document.createElement('img');
+          thumb.src = path;
+          thumb.className = 'thumbnail';
+          thumb.onclick = () => {
+            item.background = `background: url('${path}')`;
+            buildContent(contentArray);
+          };
+          bgPreview.appendChild(thumb);
+        });
+
+        const controls = document.createElement('div');
+        controls.className = 'content-controls';
+        const btnUp = document.createElement('button');
+        btnUp.textContent = '↑';
+        btnUp.disabled = index === 0;
+        btnUp.onclick = () => {
+          [contentArray[index], contentArray[index - 1]] = [contentArray[index - 1], contentArray[index]];
+          buildContent(contentArray);
+        };
+        const btnDown = document.createElement('button');
+        btnDown.textContent = '↓';
+        btnDown.disabled = index === contentArray.length - 1;
+        btnDown.onclick = () => {
+          [contentArray[index], contentArray[index + 1]] = [contentArray[index + 1], contentArray[index]];
+          buildContent(contentArray);
+        };
+        const btnDelete = document.createElement('button');
+        btnDelete.textContent = '🗑️';
+        btnDelete.onclick = () => {
+          contentArray.splice(index, 1);
+          buildContent(contentArray);
+        };
+
+        controls.appendChild(btnUp);
+        controls.appendChild(btnDown);
+        controls.appendChild(btnDelete);
+        controls.appendChild(colorInput);
+        controls.appendChild(shadowCheckbox);
+        center.appendChild(document.createElement('br'));
+        center.appendChild(contentElement);
+        center.appendChild(controls);
+        center.appendChild(bgPreview);
+
+        wrapper.appendChild(left);
+        wrapper.appendChild(center);
+        wrapper.appendChild(right);
+        container.appendChild(wrapper);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await fetchBackgrounds();
+      await fetchAllImages();
+      buildContent(contentArray);
+
+      document.querySelector('.pallete button:nth-child(1)').onclick = () => {
+        const type = prompt('Enter content type (h1, p, button, youtube, img):', 'p');
+        if (!type) return;
+        const item = { type, content: '', background: 'background-color: white;', color: '#000000', shadow: false };
+        if (type === 'img') item.src = '';
+        contentArray.push(item);
+        buildContent(contentArray);
+      };
+
+      document.querySelector('.pallete button:nth-child(2)').onclick = () => {
+        fetch('/update/<%- content.page %>', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(contentArray)
+        }).then(res => res.json())
+          .then(() => alert('Saved successfully!'))
+          .catch(err => console.error('Save error:', err));
+      };
+    });
+
+    function updateTitle() {
+      const title = document.getElementById('new-title').value;
+      fetch('/update-title/<%= content.page %>', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      }).then(res => res.json())
+        .then(() => alert('Title changed'))
+        .catch(err => alert('Error updating title'));
+    }
+
+    function uploadImage() {
+      const fileInput = document.getElementById('image-upload');
+      const file = fileInput.files[0];
+      if (!file) return alert('No image selected.');
+      const formData = new FormData();
+      formData.append('image', file);
+      fetch('/upload-image', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(() => alert('Image uploaded'))
+        .catch(err => alert('Error uploading image'));
+    }
+
+    function uploadVideo() {
+      const fileInput = document.getElementById('video-upload');
+      const file = fileInput.files[0];
+      if (!file) return alert('No video selected.');
+      const formData = new FormData();
+      formData.append('video', file);
+      fetch('/upload-video/<%= content.page %>', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(() => alert('Video uploaded'))
+        .catch(err => alert('Error uploading video'));
+    }
+  </script>
+
+  <style>
+    .pallete { display: flex; justify-content: center; gap: 10px; margin-top: 1em; }
+    .thumbnail-wrapper { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .thumbnail { width: 60px; height: 40px; object-fit: cover; border: 2px solid #ccc; cursor: pointer; }
+    .thumbnail:hover { border-color: #007BFF; }
+    .content-controls { margin-top: 10px; }
+    .editable-button { margin-bottom: 0.5em; }
+    .button-link-input { width: 100%; margin-top: 5px; }
+  </style>
+<% } %>

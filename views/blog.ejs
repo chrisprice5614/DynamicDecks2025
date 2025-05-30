@@ -1,0 +1,42 @@
+<html lang="en">
+<head>
+    
+    <%- include("includes/head") %>
+    <title>Dynamic Decks, Inc</title>
+</head>
+<%- include("includes/sticky") %>
+<header>
+    <%- include("includes/header") %>
+</header>
+<body>
+    <main>
+        <div class="content">
+            <div></div>
+
+            <div>
+                <br>
+                <h1 style="text-align: center;">Blog</h1>
+                <br>
+                <% blogs.forEach( blog => { if((blog.active) || (user)) { %>
+                    <h1><a href="/blog/<%= blog.id %> " class="bloglink"><%= blog.title %></a></h1>
+                <% } }) %>
+                <br>
+                <% if(user) { %>
+                    <br>
+                    <br>
+                    <form action="/add-blog" method="POST">
+                        <label for="title">Title</label>
+                        <input type="text" name="title" id="title">
+                        <button class="quote-button" onclick="window.location.href='/add-blog';">Add Blog</button>
+                    </form>
+                <% } %>
+            </div>
+
+            <div></div>
+        </div>
+    </main>
+</body>
+<footer>
+    <%- include("includes/footer") %>
+</footer>
+</html>

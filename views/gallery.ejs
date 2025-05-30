@@ -1,0 +1,208 @@
+<html lang="en">
+<head>
+    
+    <%- include("includes/head") %>
+    <title>Dynamic Decks, Inc</title>
+</head>
+<%- include("includes/sticky") %>
+<header>
+    
+    <%- include("includes/header") %>
+</header>
+<body style="background-image: url(/img/ui/wood-light.png);">
+    <main>
+        <div class="content">
+            <div></div>
+
+            <div>
+                <br>
+                <h1 style="text-align: center; color: white; text-shadow: 1px 1px 4px #000;" class="title">Project Gallery</h1>
+                <br>
+                <br>
+                <div style="text-align: center;">
+                    <button class="quote-button" style="margin: 8px; <% if(query == "decks") { %> background-color: #96EB22; <% } %>" onclick="window.location.href='/gallery<% if(query!= 'decks')  { %>?filter=decks <% } %>';">Decks</button>
+                    <button class="quote-button" style="margin: 8px; <% if(query == "pergola") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'pergola')  { %>?filter=pergola <% } %>';">Pergolas</button>
+                    <button class="quote-button" style="margin: 8px; <% if(query == "cover") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'cover')  { %>?filter=cover <% } %>';">Covers</button>
+                    <button class="quote-button" style="margin: 8px; <% if(query == "privacywall") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'privacywall')  { %>?filter=privacywall <% } %>';">Privacy Walls</button>
+                    <button class="quote-button" style="margin: 8px; <% if(query == "stairs") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'stairs')  { %>?filter=stairs <% } %>';">Stairs</button>
+                    <button class="quote-button" style="margin: 8px; <% if(query == "railing") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'railing')  { %>?filter=railing <% } %>';">Railing</button>
+                    <button class="quote-button" style="margin: 8px; <% if(query == "lighting") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'lighting')  { %>?filter=lighting <% } %>';">Lighting</button>
+                </div>
+                <% if(user ) { %>
+                <form action="/upload" method="POST" class = "contact-form" name="FormName" enctype="multipart/form-data">
+                    <label>
+                        Upload Photo:
+                        <br>
+                        <input type="file" id="file" name="file" accept=".png,.jpg,.jpeg" required/>
+                    </label>
+                    <br>
+                    <label>
+                        Description:
+                        <input id="description" name="description" style="width: 100%" placeholder="White deck with a kingpost style cover." required>
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="pergola" value="pergola"> Pergola
+                      </label><br>
+                  
+                      <label>
+                        <input type="checkbox" name="cover" value="cover"> Cover
+                      </label><br>
+                  
+                      <label>
+                        <input type="checkbox" name="privacywall" value="privacywall"> Privacy Wall
+                      </label><br>
+                  
+                      <label>
+                        <input type="checkbox" name="decks" value="decks"> Decks
+                      </label><br>
+                  
+                      <label>
+                        <input type="checkbox" name="stairs" value="stairs"> Stairs
+                      </label><br>
+                  
+                      <label>
+                        <input type="checkbox" name="railing" value="railing"> Railing
+                      </label><br>
+                  
+                      <label>
+                        <input type="checkbox" name="lighting" value="lighting"> Lighting
+                      </label><br>
+                      <br>
+                    
+
+                    <button type="submit" class="galleryButton" style="padding-top: 8px; padding-bottom: 8px; padding-left: 12px; padding-right: 12px;"><b>Add to Gallery</b></button>
+                </form>
+                <% } %>
+                <br>
+
+                
+            </div>
+
+            <div></div>
+        </div>
+
+        <div id="Gallery">
+                    
+        </div>
+    </main>
+
+    <script src="/scripts/BLazy.js"></script>
+    
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    
+            function removeAllChildNodes(parent) {
+                while (parent.firstChild) {
+                    parent.removeChild(parent.firstChild);
+                }
+            }
+    
+            function shuffle(array) {
+                let currentIndex = array.length, randomIndex;
+    
+                while (currentIndex > 0) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    [array[currentIndex], array[randomIndex]] = [
+                        array[randomIndex], array[currentIndex]
+                    ];
+                }
+    
+                return array;
+            }
+    
+            function buildGallery() {
+                (function () {
+                    var bLazy = new Blazy();
+                })();
+    
+                const images = <%- JSON.stringify(images) %>;
+                shuffle(images);
+    
+                const gallery = document.getElementById("Gallery");
+                removeAllChildNodes(gallery);
+    
+                let rowz = 0;
+    
+                images.forEach(image => {
+                    if (rowz % 3 === 0) {
+                        const row = document.createElement("div");
+                        row.classList.add("grid-3-flex")
+                        gallery.appendChild(row);
+                    }
+    
+                    const row = gallery.lastChild;
+                    rowz++;
+    
+                    const elem = document.createElement("div");
+                    row.appendChild(elem);
+    
+                    const container = document.createElement("div");
+                    container.classList.add("container");
+                    container.style.position = "relative"; // Needed to absolutely position the X
+                    elem.appendChild(container);
+    
+                    const zoomDiv = document.createElement("div");
+                    zoomDiv.classList.add("img-zoom");
+                    container.appendChild(zoomDiv);
+    
+                    const img = document.createElement("img");
+                    img.setAttribute("data-src", "/img/gallery/" + image.path);
+                    img.setAttribute("alt", image.description);
+                    img.setAttribute("style","width: 100%; aspect-ratio: 1; height: auto; image-rendering: crisp-edges; object-fit: cover; display: block; object-position: middle middle;")
+                    img.classList.add("b-lazy");
+                    zoomDiv.appendChild(img);
+
+                    <% if(user ) { %>
+                        // Add the X delete button
+                        const deleteLink = document.createElement("a");
+                        deleteLink.href = `/delete/${image.id}`;
+                        deleteLink.textContent = "✖"; // Unicode X
+                        deleteLink.setAttribute("style", `
+                            position: absolute;
+                            bottom: 8px;
+                            right: 8px;
+                            background: rgba(0, 0, 0, 0.7);
+                            color: white;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            font-weight: bold;
+                            font-size: 14px;
+                            text-decoration: none;
+                            transition: background 0.2s;
+                        `);
+                        deleteLink.addEventListener("mouseover", () => {
+                            deleteLink.style.background = "red";
+                        });
+                        deleteLink.addEventListener("mouseout", () => {
+                            deleteLink.style.background = "rgba(0, 0, 0, 0.7)";
+                        });
+
+                        container.appendChild(deleteLink);
+                    <% } %>
+                });
+            }
+    
+            buildGallery();
+        });
+
+       
+        document.addEventListener("DOMContentLoaded", function(event) { 
+            var scrollpos = localStorage.getItem('scrollpos');
+            if (scrollpos) window.scrollTo(0, scrollpos);
+        });
+
+        window.onbeforeunload = function(e) {
+            localStorage.setItem('scrollpos', window.scrollY);
+        };
+   
+    </script>
+    
+        
+</body>
+<footer>
+    <%- include("includes/footer") %>
+</footer>
+</html>

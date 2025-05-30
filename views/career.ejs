@@ -1,0 +1,114 @@
+<html lang="en">
+<head>
+    
+    <%- include("includes/head") %>
+    <title>Dynamic Decks, Inc</title>
+</head>
+<%- include("includes/sticky") %>
+<header>
+    
+    <%- include("includes/header") %>
+</header>
+<body style="background-image: url(/img/ui/wood-light.png);">
+    <main>
+        <div class="content">
+            <div></div>
+
+            <div>
+                <br>
+                <h1 style="text-align: center; color: white; text-shadow: 1px 1px 4px #000;" class="title">Career Opportunities</h1>
+                <br>
+                <b>Looking to build some projects with a wonderful team? Fill this out and we'll get back to you as soon as possible!</b>
+                <br>
+                <br>
+                <form action="/career" method="POST" class = "contact-form" name="FormName">
+                    <label>
+                        First Name:
+                        <input type="text" name="firstname" style="width: 100%" required>
+                    </label>
+                    <label>
+                        Last Name:
+                        <input type="text" name="lastname" style="width: 100%" required>
+                    </label>
+                    <label>
+                        Phone number:
+                        <input id="phoneNumber" type="tel" name="phone" style="width: 100%" maxlength="16" placeholder="e.g. (509) 555 - 1234" required>
+                    </label>
+                    <label>
+                        Address:
+                        <input  id="searchTextField"type="text" name="address" required>
+                    </label>
+                    <label>
+                        Email:
+                        <input type="email" name="email" required placeholder="e.g. jdoe555@gmail.com">
+                    </label>
+                    <label>
+                        Highest Education:
+                        <br>
+                        <select id="education" name="education">
+                            <option value="Some High School">Some High School</option>
+                            <option value="High School Graduate / GED">High School Graduate / GED</option>
+                            <option value="Some College">Some College</option>
+                            <option value="Associate's Degree">Associate's Degree</option>
+                            <option value="Bachelor's Degree">Bachelor's Degree</option>
+                          </select>
+                    </label>
+                    <br>
+                    <br>
+                    <label>
+                        Previous work experience:
+                        <textarea name="message"></textarea>
+                    </label>
+
+                    <button  type="submit" class="galleryButton" style="padding-top: 8px; padding-bottom: 8px; padding-left: 12px; padding-right: 12px;"><b>Send</b></button>
+                </form>
+                <br>
+                <br>
+                <br>
+
+                
+            </div>
+
+            <div></div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const phoneInput = document.getElementById('phoneNumber');
+        
+            phoneInput.addEventListener('input', (e) => {
+                let value = e.target.value;
+        
+                // Remove all non-digit characters
+                value = value.replace(/\D/g, '');
+        
+                // Limit to 10 digits
+                if (value.length > 10) {
+                    value = value.slice(0, 10);
+                }
+        
+                // Format as (XXX) XXX-XXXX
+                if (value.length > 6) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+                } else if (value.length > 3) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+                } else if (value.length > 0) {
+                    value = `(${value}`;
+                }
+        
+                e.target.value = value;
+            });
+
+            phoneInput.addEventListener('keypress', (e) => {
+                if (!/\d/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        });
+        </script>
+        
+</body>
+<footer>
+    <%- include("includes/footer") %>
+</footer>
+</html>

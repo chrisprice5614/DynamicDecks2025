@@ -1,0 +1,96 @@
+<html lang="en">
+<head>
+    
+    <%- include("includes/head") %>
+    <title>Dynamic Decks, Inc</title>
+</head>
+<%- include("includes/sticky") %>
+<header>
+    
+    <%- include("includes/header") %>
+</header>
+<body style="background-image: url(/img/ui/wood-light.png);">
+    <main>
+        <div class="content">
+            <div></div>
+
+            <div>
+                <br>
+                <h1 style="text-align: center; color: white; text-shadow: 1px 1px 4px #000;" class="title">Contact Us</h1>
+                <br>
+                <br>
+                <form action="https://formspree.io/f/mzblyrwl" method="POST" class = "contact-form" name="FormName">
+                    <label>
+                        Name:
+                        <input type="text" name="name" style="width: 100%" placeholder="e.g. John Doe" required>
+                    </label>
+                    <label>
+                        Phone number:
+                        <input id="phoneNumber" type="tel" name="phone" style="width: 100%" maxlength="16" placeholder="e.g. (509) 555 - 1234" required>
+                    </label>
+                    <label>
+                        Address:
+                        <input  id="searchTextField"type="text" name="address" required>
+                    </label>
+                    <label>
+                        Email:
+                        <input type="email" name="email" required placeholder="e.g. jdoe555@gmail.com">
+                    </label>
+                    <label>
+                        Message:
+                        <textarea name="message" placeholder="Tell us about the project"></textarea>
+                    </label>
+
+                    <button onclick="gtag_report_conversion(url);" type="submit" class="galleryButton" style="padding-top: 8px; padding-bottom: 8px; padding-left: 12px; padding-right: 12px;"><b>Send</b></button>
+                </form>
+                <br>
+                All your information is stored safely. Questions about your data? Check our <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+                <br>
+                <br>
+
+                
+            </div>
+
+            <div></div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const phoneInput = document.getElementById('phoneNumber');
+        
+            phoneInput.addEventListener('input', (e) => {
+                let value = e.target.value;
+        
+                // Remove all non-digit characters
+                value = value.replace(/\D/g, '');
+        
+                // Limit to 10 digits
+                if (value.length > 10) {
+                    value = value.slice(0, 10);
+                }
+        
+                // Format as (XXX) XXX-XXXX
+                if (value.length > 6) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+                } else if (value.length > 3) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+                } else if (value.length > 0) {
+                    value = `(${value}`;
+                }
+        
+                e.target.value = value;
+            });
+
+            phoneInput.addEventListener('keypress', (e) => {
+                if (!/\d/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        });
+        </script>
+        
+</body>
+<footer>
+    <%- include("includes/footer") %>
+</footer>
+</html>

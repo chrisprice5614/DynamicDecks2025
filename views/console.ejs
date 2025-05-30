@@ -1,0 +1,400 @@
+<html lang="en">
+<head>
+    <%- include("includes/head") %>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <title>Dynamic Decks, Inc</title>
+</head>
+<%- include("includes/sticky") %>
+<header>
+    <%- include("includes/header") %>
+</header>
+<body>
+    <main>
+        <div class="content">
+            <div></div>
+
+            <div>
+                <br>
+                <h1>Admin Console</h1>
+                <br>
+                <h2>Sessions</h2>
+                <br>
+                <p>Sessions are unique visits to the website. Sessions track how long a user stays on a page, which page they click on, and whether or not the user fills out the contact form. The conversion rate is the percentage of users who have filled out the contact form.</p>
+                <br>
+                <div id="session-log">
+                    <!-- Dynamic session stats will appear here -->
+                </div>
+                <br>
+                <button class="quote-button">Today</button>
+                <button class="quote-button">Last 24 Hours</button>
+                <button class="quote-button">Last 7 Days</button>
+                <button class="quote-button">This Month</button>
+                <button class="quote-button">Last 30 Days</button>
+                <button class="quote-button">Last 3 Months</button>
+                <button class="quote-button">Year To Date</button>
+                <button class="quote-button">Last 365 Days</button>
+                <br>
+                
+                <form id="custom-date-form">
+                    <label for="start-date"><strong>Start Date:</strong></label>
+                    <input type="date" id="start-date" name="start-date">
+                    <label for="end-date"><strong>End Date:</strong></label>
+                    <input type="date" id="end-date" name="end-date">
+                    <button class="quote-button" type="button">Custom Date</button>
+                </form>
+                <br>
+                <div id="session-graphs">
+                    <!-- Dynamic session stats will appear here -->
+                </div>
+                
+            </div>
+
+            <div></div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sessionLog = document.getElementById('session-log');
+            const filterButtons = document.querySelectorAll('.quote-button');
+    
+            // Example sessions data passed in from EJS server-side
+            const sessions = <%- JSON.stringify(sessions) %>;
+    
+            const getTimeRange = (label) => {
+                const now = new Date();
+                switch (label) {
+                    case 'Today':
+                        return {
+                            start: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+                            end: now.getTime()
+                        };
+                    case 'Last 24 Hours':
+                        return {
+                            start: now.getTime() - 24 * 60 * 60 * 1000,
+                            end: now.getTime()
+                        };
+                    case 'Last 7 Days':
+                        return {
+                            start: now.getTime() - 7 * 24 * 60 * 60 * 1000,
+                            end: now.getTime()
+                        };
+                    case 'This Month':
+                        return {
+                            start: new Date(now.getFullYear(), now.getMonth(), 1),
+                            end: now.getTime()
+                        };
+                    case 'Last 30 Days':
+                        return {
+                            start: now.getTime() - 30 * 24 * 60 * 60 * 1000,
+                            end: now.getTime()
+                        };
+                    case 'Last 3 Months':
+                        return {
+                            start: new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()),
+                            end: now.getTime()
+                        };
+                    case 'Year To Date':
+                        return {
+                            start: new Date(now.getFullYear(), 0, 1),
+                            end: now.getTime()
+                        };
+                    case 'Last 365 Days':
+                        return {
+                            start: now.getTime() - 365 * 24 * 60 * 60 * 1000,
+                            end: now.getTime()
+                        };
+                    default:
+                        return {
+                            start: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+                            end: now.getTime()
+                        };
+                }
+            };
+    
+            const updateStats = (startTime, endTime) => {
+            const filtered = sessions.filter(s => s.date >= startTime && s.date <= endTime);
+            const totalSessions = filtered.length;
+
+            let totalVisits = 0;
+            let totalTimeBetween = 0;
+            let totalTimeIntervals = 0;
+            let convertedCount = 0;
+
+            // Summary stats
+            filtered.forEach(session => {
+                const visits = JSON.parse(session.visits) || [];
+                totalVisits += visits.length;
+
+                if (session.converted) convertedCount++;
+
+                if (visits.length > 1) {
+                    for (let i = 1; i < visits.length; i++) {
+                        const delta = visits[i].time - visits[i - 1].time;
+                        totalTimeBetween += delta;
+                        totalTimeIntervals++;
+                    }
+                }
+            });
+
+            const avgVisits = totalSessions ? (totalVisits / totalSessions).toFixed(2) : 0;
+            const avgTimeBetween = totalTimeIntervals ? (totalTimeBetween / totalTimeIntervals / 1000).toFixed(2) : 0;
+            const conversionRate = totalSessions ? ((convertedCount / totalSessions) * 100).toFixed(2) : 0;
+
+            // Build session log HTML
+            let sessionDetailsHTML = '<br><h2>Session Breakdown</h2><br>';
+
+            filtered.forEach((session, index) => {
+                const sessionDate = new Date(session.date).toLocaleString();
+                const visits = JSON.parse(session.visits) || [];
+
+                let visitTrail = visits.map((v, i) => {
+                    const path = `${v.url}`;
+                    if (i === 0) return path;
+                    const deltaSeconds = ((v.time - visits[i - 1].time) / 1000).toFixed(0);
+                    return `, ${deltaSeconds}s → ${path}`;
+                }).join('');
+
+                color = session.converted ? `#00aa33` : `#0077cc`
+
+                sessionDetailsHTML += `
+                    <div class="session-entry">
+                        <p>
+                            <strong class="toggle-session" data-index="${index}" style="cursor: pointer; color: ${color};">${sessionDate}</strong>
+                        </p>
+                        <div class="visit-trail" id="trail-${index}" style="display: none; margin-left: 1em;">
+                            <p>${visitTrail}</p>
+                        </div>
+                        <br>
+                    </div>
+                `;
+            });
+
+
+            sessionLog.innerHTML = `
+                <p><strong>Total Sessions:</strong> ${totalSessions}</p>
+                <p><strong>Avg. URL Visits per Session:</strong> ${avgVisits}</p>
+                <p><strong>Avg. Time Between Pages (sec):</strong> ${avgTimeBetween}</p>
+                <p><strong>Conversion Rate:</strong> ${conversionRate}%</p>
+                ${sessionDetailsHTML}
+            `;
+
+                document.querySelectorAll('.toggle-session').forEach(elem => {
+                elem.addEventListener('click', () => {
+                    const index = elem.getAttribute('data-index');
+                    const trailDiv = document.getElementById(`trail-${index}`);
+                    if (trailDiv.style.display === 'none') {
+                        trailDiv.style.display = 'block';
+                    } else {
+                        trailDiv.style.display = 'none';
+                    }
+                });
+            });
+        };
+
+    
+            filterButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const label = button.textContent.trim();
+                    if (label !== 'Custom Date') {
+                        const { start, end } = getTimeRange(label);
+                        updateStats(start, end);
+                    }
+                });
+            });
+    
+            const customDateForm = document.getElementById('custom-date-form');
+            const submitButton = customDateForm.querySelector('button[type="button"]');  // Adjusted for type="button"
+
+
+            // Add click listener to button
+            submitButton.addEventListener('click', (e) => {
+
+
+                // Prevent form submission from refreshing the page
+                e.preventDefault();  // Prevent the default button behavior
+
+                const startInput = document.getElementById('start-date').value;
+                const endInput = document.getElementById('end-date').value;
+
+
+                if (!startInput || !endInput) {
+                    alert('Please select both start and end dates.');
+                    return;
+                }
+
+                const startTime = new Date(startInput).getTime();
+                const endTime = new Date(endInput).getTime() + 24 * 60 * 60 * 1000 - 1; // End of selected day
+
+                updateStats(startTime, endTime);
+            });
+    
+            // Run once on load for "Today"
+            updateStats(getTimeRange('Today').start, getTimeRange('Today').end);
+
+            const renderCharts = () => {
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const endOfToday = startOfToday + 24 * 60 * 60 * 1000;
+
+            // Helper: round timestamp to nearest half hour
+            const roundToHalfHour = (timestamp) => {
+                const date = new Date(timestamp);
+                date.setMinutes(date.getMinutes() < 30 ? 0 : 30, 0, 0);
+                return date.getTime();
+            };
+
+            // 1. Sessions today
+            const todayCounts = Array(48).fill(0); // 48 half-hours
+            sessions.forEach(s => {
+                if (s.date >= startOfToday && s.date < endOfToday) {
+                    const index = Math.floor((roundToHalfHour(s.date) - startOfToday) / (30 * 60 * 1000));
+                    todayCounts[index]++;
+                }
+            });
+
+            // 2. Average per day across dataset
+            const dailyTotals = {}; // key = "hh:mm", value = [count, count, ...]
+            sessions.forEach(s => {
+                const time = roundToHalfHour(s.date) - (new Date(s.date).setHours(0,0,0,0));
+                const label = new Date(time).toISOString().substr(11, 5); // "HH:MM"
+                if (!dailyTotals[label]) dailyTotals[label] = [];
+                dailyTotals[label].push(1);
+            });
+
+            const avgDayLabels = Array.from({length: 48}, (_, i) => {
+                const h = String(Math.floor(i / 2)).padStart(2, '0');
+                const m = i % 2 === 0 ? '00' : '30';
+                return `${h}:${m}`;
+            });
+            const avgDayCounts = avgDayLabels.map(label => {
+                const vals = dailyTotals[label] || [];
+                return vals.length ? (vals.length / new Set(sessions.map(s => new Date(s.date).toDateString())).size).toFixed(2) : 0;
+            });
+
+            // 3. Average per weekday (Sunday–Saturday)
+            const weeklyCounts = Array(7).fill(0);
+            const weekdayTotals = Array(7).fill(0); // for averaging
+
+            sessions.forEach(s => {
+                const day = new Date(s.date).getDay(); // 0 = Sunday
+                weeklyCounts[day]++;
+            });
+
+            sessions.forEach(s => {
+                const dateKey = new Date(s.date).toDateString();
+                const day = new Date(s.date).getDay();
+                weekdayTotals[day] += 1;
+            });
+
+            // Count sessions per weekday
+            const weekdaySessions = Array(7).fill(0);
+            sessions.forEach(s => {
+                const day = new Date(s.date).getDay(); // Sunday = 0
+                weekdaySessions[day]++;
+            });
+
+            // Calculate number of full weeks in dataset
+            const sortedDates = sessions.map(s => s.date).sort((a, b) => a - b);
+            const firstDate = new Date(sortedDates[0]);
+            const lastDate = new Date(sortedDates[sortedDates.length - 1]);
+            const msInWeek = 7 * 24 * 60 * 60 * 1000;
+            const totalWeeks = Math.max(1, Math.ceil((lastDate - firstDate + 1) / msInWeek));
+
+            // Compute average per weekday over total weeks
+            const avgWeekdaySessions = weekdaySessions.map(count => (count / totalWeeks).toFixed(2));
+
+
+            const weekLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            // Render the charts
+            const container = document.getElementById('session-graphs');
+            container.innerHTML += `
+                <br>
+                <h2 style="text-align: center;">Today's Visits</h2>
+                <br>
+                <canvas id="todayChart" height="100"></canvas><br>
+                <br>
+                <h2 style="text-align: center;">Average Visits Throughout The Day</h2>
+                <br>
+                <canvas id="avgDayChart" height="100"></canvas><br>
+                <br>
+                <h2 style="text-align: center;">Average Visits Throughout The Week</h2>
+                <br>
+                <canvas id="avgWeekChart" height="100"></canvas><br>
+            `;
+
+            const chartOptions = {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            };
+
+            new Chart(document.getElementById('todayChart'), {
+                type: 'line',
+                data: {
+                    labels: avgDayLabels,
+                    datasets: [{
+                        label: 'Sessions',
+                        data: todayCounts,
+                        borderColor: '#0077cc',
+                        fill: false
+                    }]
+                },
+                options: chartOptions
+            });
+
+            new Chart(document.getElementById('avgDayChart'), {
+                type: 'line',
+                data: {
+                    labels: avgDayLabels,
+                    datasets: [{
+                        label: 'Session',
+                        data: avgDayCounts,
+                        borderColor: '#00aa33',
+                        fill: false
+                    }]
+                },
+                options: chartOptions
+            });
+
+            new Chart(document.getElementById('avgWeekChart'), {
+                type: 'line',
+                data: {
+                    labels: weekLabels,
+                    datasets: [{
+                        label: 'Session',
+                        data: avgWeekdaySessions,
+                        borderColor: '#cc6600',
+                        fill: false
+                    }]
+                },
+                options: chartOptions
+            });
+        };
+
+
+            renderCharts();
+
+        });
+
+
+        
+
+
+        // Enable click-to-toggle for session trails
+        
+
+    </script>
+    
+    
+</body>
+<footer>
+    <%- include("includes/footer") %>
+</footer>
+</html>
