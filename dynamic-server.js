@@ -226,22 +226,27 @@ app.use(function (req, res, next) {
         sessionStatement.run(req.session.sessionId, Date.now())
     }
 
-    req.session.visits.push({url: req.originalUrl, time: Date.now()})
 
-    const sessionStatement = db.prepare("UPDATE sessions set visits = ? WHERE sessionId = ?")
-    sessionStatement.run(JSON.stringify(req.session.visits), req.session.sessionId)
-
+    if(req.session.visits.size > 20)
+    {
+        req.session.visits.push({url: req.originalUrl, time: Date.now()})
     
-    req.session = {exp: Math.floor(Date.now() / 1000) + (60*60*0.5), sessionId: req.session.sessionId, visits: req.session.visits, converted: req.session.converted};
 
-    const ourTokenValue = jwt.sign(req.session, process.env.JWTSECRET)
+        const sessionStatement = db.prepare("UPDATE sessions set visits = ? WHERE sessionId = ?")
+        sessionStatement.run(JSON.stringify(req.session.visits), req.session.sessionId)
 
-    res.cookie("session",ourTokenValue, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 1000 * 60 * 60 * 0.5
+        
+        req.session = {exp: Math.floor(Date.now() / 1000) + (60*60*0.5), sessionId: req.session.sessionId, visits: req.session.visits, converted: req.session.converted};
+
+        const ourTokenValue = jwt.sign(req.session, process.env.JWTSECRET)
+
+        res.cookie("session",ourTokenValue, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60 * 0.5
     }) //name, string to remember,
+    }
 
     //console.log(req.session)
     
@@ -277,7 +282,7 @@ app.get("/activate/:id", (req,res) => {
 
 app.get("/blog", (req,res) => {
 
-    const blogStatement = db.prepare("SELECT * FROM blogs")
+    const blogStatement = db.prepare("SELECT * FROM blogs ORDER BY id DESC");
     const blogs = blogStatement.all()
 
     return res.render("blog", {blogs})
@@ -866,6 +871,50 @@ app.post("/update/:id", mustBeLoggedIn, (req,res) => {
     updatePage.run(JSON.stringify(req.body),req.params.id)
 
     return res.json({ success: true });
+})
+
+app.get("/about.html", (req,res) => {
+    res.redirect("/decks");
+})
+
+app.get("/blog.html", (req,res) => {
+    res.redirect("/blog");
+})
+
+app.get("/construction.html", (req,res) => {
+    res.redirect("/construction");
+})
+
+app.get("/contact.html", (req,res) => {
+    res.redirect("/contact");
+})
+
+app.get("/decks.html", (req,res) => {
+    res.redirect("/decks");
+})
+
+app.get("/home.html", (req,res) => {
+    res.redirect("/");
+})
+
+app.get("/covers.html", (req,res) => {
+    res.redirect("/covers");
+})
+
+app.get("/gallery.html", (req,res) => {
+    res.redirect("/gallery");
+})
+
+app.get("/index.html", (req,res) => {
+    res.redirect("/");
+})
+
+app.get("/pergolas.html", (req,res) => {
+    res.redirect("/pergolas");
+})
+
+app.get("/thanks.html", (req,res) => {
+    res.redirect("/thanks");
 })
 
 app.get("/login", (req,res) => {
