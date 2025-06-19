@@ -12,6 +12,7 @@ const nodemailer = require("nodemailer")
 const multer = require("multer")
 const sharp = require('sharp');
 const fs = require("fs");
+const marked = require('marked');
 const fileStorageEngine = multer.diskStorage({
     
     destination: (req, file, cb) => {
@@ -176,8 +177,12 @@ const createTables = db.transaction(() => {
         `
         CREATE TABLE IF NOT EXISTS blogs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title STRING,
-        active BOOL
+        page STRING,
+        active BOOL,
+        slug STRING,
+        hero STRING,
+        content STRING,
+        header STRING
         )
         `
     ).run()
@@ -185,6 +190,15 @@ const createTables = db.transaction(() => {
 })
 
 createTables();
+
+function slugify(title) {
+  return title
+    .toLowerCase()
+    .replace(/\s+/g, '-')           // replace spaces with dashes
+    .replace(/[^\w\-]+/g, '')       // remove special characters
+    .replace(/\-\-+/g, '-')         // collapse multiple dashes
+    .replace(/^-+|-+$/g, '');       // trim dashes from start/end
+}
 
 
 //Middleware
@@ -260,15 +274,14 @@ app.get("/thanks", (req,res) => {
     return res.render("thanks")
 })
 
-app.get("/blog/:id", (req,res) => {
 
-    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?")
-    const content = contentStatement.get("blog"+req.params.id)
+app.get("/blog/:slug", (req,res) => {
 
-    const blogStatement = db.prepare("SELECT * FROM blogs WHERE id = ?")
-    const blog = blogStatement.get(req.params.id)
 
-    return res.render("single-blog", {content, blog})
+    const blogStatement = db.prepare("SELECT * FROM blogs WHERE slug = ?")
+    const pageData = blogStatement.get(req.params.slug)
+
+    return res.render("page", {pageData})
 })
 
 app.get("/activate/:id", (req,res) => {
@@ -288,23 +301,13 @@ app.get("/blog", (req,res) => {
     return res.render("blog", {blogs})
 })
 
-app.post("/add-blog", mustBeLoggedIn,(req,res) => {
+app.get("/delete-blog/:id", mustBeLoggedIn, (req,res) => {
+    const blogStatement = db.prepare("DELETE FROM blogs WHERE id = ?")
+    blogStatement.run(req.params.id);
 
-    const blogStatement = db.prepare("INSERT into blogs (title) VALUES (?)")
-    blogStatement.run(req.body.title)
-
-    const blogGet = db.prepare("SELECT * FROM blogs WHERE title = ?")
-    const blog = blogGet.get(req.body.title)
-
-    const pageStatement = db.prepare("INSERT into pages (page, header, content) VALUES (? , ? , ?)")
-    pageStatement.run("blog"+blog.id,req.body.title, "[]")
-
-    const contentGet = db.prepare("SELECT * FROM pages WHERE page = ?")
-    const content = contentGet.get("blog"+blog.id)
-   
-
-    return res.render("single-blog", {content, blog})
+    return res.redirect("/console")
 })
+
 
 function mustBeLoggedIn(req, res, next){
     if(req.user) {
@@ -319,10 +322,12 @@ function mustBeLoggedIn(req, res, next){
 app.get("/", (req, res) => {
 
     //Grab content from the database page -> "home"
-    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?")
-    const content = contentStatement.get("home")
+    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
+    const pageData = contentStatement.get("home");
 
-    return res.render("homepage", {content});
+    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+
+    return res.render("homepage", {pageData});
 })
 
 app.get("/logout", (req,res) => {
@@ -332,20 +337,25 @@ app.get("/logout", (req,res) => {
 
 app.get("/decks", (req, res) => {
 
-    //Grab content from the database page -> "home"
-    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?")
-    const content = contentStatement.get("decks")
 
-    return res.render("homepage", {content});
+    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
+    const pageData = contentStatement.get("decks");
+
+    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+
+    return res.render("page", {pageData});
+
 })
 
 app.get("/pergolas", (req, res) => {
 
     //Grab content from the database page -> "home"
-    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?")
-    const content = contentStatement.get("pergolas")
+    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
+    const pageData = contentStatement.get("pergolas");
 
-    return res.render("homepage", {content});
+    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+
+    return res.render("page", {pageData});
 })
 
 app.get("/privacy-policy", (req, res) => {
@@ -393,28 +403,207 @@ app.post('/upload-video/:id', mustBeLoggedIn, upload.single('video'), (req, res)
     res.json({ success: true });
   });
 
+
+const markdownUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, './public/img'); // Temp folder before conversion
+    },
+    filename: (req, file, cb) => {
+      const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
+      cb(null, uniqueName);
+    }
+  }),
+  fileFilter: (req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowed.includes(file.mimetype)) cb(null, true);
+    else cb(new Error('Unsupported file type'), false);
+  }
+});
+
+app.post("/upload-markdown-image", mustBeLoggedIn, markdownUpload.single("image"), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded or invalid file type." });
+  }
+
+  const outputDir = path.join('public', 'img', 'markdown');
+  const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}.webp`;
+  const outputPath = path.join(outputDir, filename);
+
+  try {
+    // Ensure output directory exists
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+    // Convert to .webp
+    await sharp(req.file.path)
+      .webp({ quality: 85 })
+      .toFile(outputPath);
+
+    // Delete temp uploaded file
+    fs.unlink(req.file.path, (err) => {
+      if (err) console.error("Error deleting temp file:", err);
+    });
+
+    // Send markdown-compatible image URL
+    const publicUrl = `/img/markdown/${filename}`;
+    return res.json({ url: publicUrl });
+  } catch (err) {
+    console.error("Image upload failed:", err);
+    return res.status(500).json({ error: "Failed to process image." });
+  }
+});
+
+
+app.post('/edit/:id', mustBeLoggedIn, upload.single('heroImage'), fileSizeLimiter, async (req, res) => {
+    const id = req.params.id;
+    const { header, content } = req.body;
+    const file = req.file;
+
+    const isNumeric = /^\d+$/.test(id);
+    const table = isNumeric ? 'blogs' : 'pages';
+    let heroUrl = null;
+
+    try {
+        // Get current hero image path if any
+        const currentRow = isNumeric
+            ? db.prepare("SELECT hero FROM blogs WHERE id = ?").get(Number(id))
+            : db.prepare("SELECT hero FROM pages WHERE page = ?").get(id);
+
+        const oldHeroPath = currentRow?.hero ? path.join('public', currentRow.hero) : null;
+
+        if (file && file.path) {
+            // Convert to .webp
+            const webpFilename = `${Date.now()}-${Math.round(Math.random() * 1e9)}.webp`;
+            const webpPath = path.join('public/img/gallery', webpFilename);
+            const publicWebPath = `/img/gallery/${webpFilename}`;
+
+            await sharp(file.path)
+                .webp({ quality: 85 })
+                .toFile(webpPath);
+
+            heroUrl = publicWebPath;
+
+            // Delete uploaded original
+            fs.unlink(file.path, (err) => {
+                if (err) console.error('Error deleting uploaded original image:', err);
+            });
+
+            // Delete old hero if exists
+            if (oldHeroPath && fs.existsSync(oldHeroPath)) {
+                fs.unlink(oldHeroPath, (err) => {
+                    if (err) console.error("Error deleting old hero:", err);
+                });
+            }
+        }
+
+        // Prepare and run update
+        const stmt = heroUrl
+            ? db.prepare(`UPDATE ${table} SET header = ?, content = ?, hero = ? WHERE ${isNumeric ? 'id' : 'page'} = ?`)
+            : db.prepare(`UPDATE ${table} SET header = ?, content = ? WHERE ${isNumeric ? 'id' : 'page'} = ?`);
+
+        const params = heroUrl
+            ? [header, content, heroUrl, isNumeric ? Number(id) : id]
+            : [header, content, isNumeric ? Number(id) : id];
+
+        stmt.run(...params);
+
+        res.redirect('/console');
+    } catch (err) {
+        console.error("Update error:", err);
+        res.status(500).send("Something went wrong updating the content.");
+    }
+});
+
+
+
 app.get("/covers", (req, res) => {
 
     //Grab content from the database page -> "home"
-    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?")
-    const content = contentStatement.get("covers")
+    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
+    const pageData = contentStatement.get("covers");
 
-    return res.render("homepage", {content});
+    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+
+    return res.render("page", {pageData});
 })
 
 app.get("/construction", (req, res) => {
 
     //Grab content from the database page -> "home"
-    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?")
-    const content = contentStatement.get("construction")
+    const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
+    const pageData = contentStatement.get("construction");
 
-    return res.render("homepage", {content});
+    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+
+    return res.render("page", {pageData});
 })
 
 app.get("/contact", (req, res) => {
 
     return res.render("contact")
 })
+
+app.post("/contact", async (req, res) => {
+  try {
+    const formData = req.body;
+
+    // 1. Verify Google reCAPTCHA token first
+    // The token will be in formData['g-recaptcha-response'] or similar, 
+    // confirm what your front end sends (Google sends 'g-recaptcha-response')
+
+    const captchaToken = formData["g-recaptcha-response"];
+    if (!captchaToken) {
+      return res.status(400).send("No captcha token provided");
+    }
+
+    // Verify with Google
+    const secretKey = process.env.GOOGLEKEY;
+    const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaToken}`;
+
+    const captchaResponse = await fetch(verifyURL, { method: "POST" });
+    const captchaResult = await captchaResponse.json();
+
+    if (!captchaResult.success) {
+      return res.status(400).send("Captcha verification failed");
+    }
+
+    // 2. Forward the form data to Formspree
+
+    // Formspree expects form data in URL-encoded or JSON
+    // We'll send as URL-encoded:
+
+    const urlSearchParams = new URLSearchParams();
+
+    // Append all keys except captcha token
+    for (const key in formData) {
+      if (key !== "g-recaptcha-response") {
+        urlSearchParams.append(key, formData[key]);
+      }
+    }
+
+    const formspreeRes = await fetch("https://formspree.io/f/mzblyrwl", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json",
+      },
+      body: urlSearchParams.toString(),
+    });
+
+    if (!formspreeRes.ok) {
+      return res.status(500).send("Error submitting form to Formspree");
+    }
+
+    const formspreeJson = await formspreeRes.json();
+
+    // 3. Respond to your client with success or pass through Formspree response
+    res.status(200).json({ message: "Form submitted successfully", formspree: formspreeJson });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal server error");
+  }
+});
 
 app.get("/gallery", (req, res) => {
 
@@ -590,11 +779,18 @@ app.get("/console", mustBeLoggedIn, (req,res) => {
     const sessionStatement = db.prepare("SELECT * FROM sessions ORDER BY date")
     const sessions = sessionStatement.all()
 
-    return res.render("console", {sessions})
+    const blogStatement = db.prepare("SELECT * FROM blogs")
+    const blogs = blogStatement.all();
+
+    return res.render("console", {sessions, blogs})
 })
 
 app.get("/career", (req, res) => {
     return res.render("career")
+})
+
+app.get("/add-blog", mustBeLoggedIn, (req,res) => {
+    return res.render("add-blog")
 })
 
 app.post("/career", (req,res) => {
@@ -863,15 +1059,50 @@ app.get("/allimg", mustBeLoggedIn, (req, res) => {
       console.log(imagePaths)
       res.json(imagePaths);
     });
-  });
+});
 
-app.post("/update/:id", mustBeLoggedIn, (req,res) => {
+app.post('/add-blog', mustBeLoggedIn, upload.single('heroImage'), async (req, res) => {
+    const { header, content } = req.body;
+    const file = req.file;
 
-    const updatePage = db.prepare("UPDATE pages set content = ? WHERE page = ?")
-    updatePage.run(JSON.stringify(req.body),req.params.id)
+    if (!header || !content) {
+        return res.status(400).send("Header and content are required.");
+    }
 
-    return res.json({ success: true });
-})
+    const slug = slugify(header, { lower: true, strict: true });
+    const page = header;
+    const active = 1;
+    let hero = null;
+
+    try {
+        if (file && file.path) {
+            const webpFilename = `${Date.now()}-${Math.round(Math.random() * 1e9)}.webp`;
+            const webpPath = path.join('public/img/gallery', webpFilename);
+            const publicWebPath = `/img/gallery/${webpFilename}`;
+
+            await sharp(file.path)
+                .webp({ quality: 85 })
+                .toFile(webpPath);
+
+            hero = publicWebPath;
+
+            // Delete original upload (JPG/PNG)
+            fs.unlink(file.path, (err) => {
+                if (err) console.error('Error deleting original image:', err);
+            });
+        }
+
+        db.prepare(`
+            INSERT INTO blogs (page, active, slug, hero, content, header)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `).run(page, active, slug, hero, content, header);
+
+        res.redirect(`/blog/${slug}`);
+    } catch (err) {
+        console.error("Add blog error:", err);
+        res.status(500).send("Something went wrong adding the blog.");
+    }
+});
 
 app.get("/about.html", (req,res) => {
     res.redirect("/decks");
@@ -915,6 +1146,22 @@ app.get("/pergolas.html", (req,res) => {
 
 app.get("/thanks.html", (req,res) => {
     res.redirect("/thanks");
+})
+
+app.get("/edit/:id", mustBeLoggedIn, (req,res) => {
+
+    const id = req.params.id;
+    let pageData;
+
+    if (/^\d+$/.test(req.params.id)) {
+        const contentStatement = db.prepare("SELECT * FROM blogs WHERE id = ?")
+        pageData = contentStatement.get(req.params.id)
+    } else {
+        const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?")
+        pageData = contentStatement.get(req.params.id)
+    }
+
+    return res.render("edit-page", {id, pageData})
 })
 
 app.get("/login", (req,res) => {

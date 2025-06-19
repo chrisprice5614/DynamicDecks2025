@@ -2,7 +2,46 @@
 <head>
     
     <%- include("includes/head") %>
-    <title>Dynamic Decks, Inc</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <% const headUrl = "https://www.dynamicdecksinc.com/contact" %>
+    <% const headDescription = "Dynamic Decks builds durable, custom outdoor decks, pergolas, and covers with premium materials for lasting beauty and year-round outdoor living enjoyment." %>
+    <% const headTitle = "Dynamic Decks - Contact" %>
+    
+    <!-- Primary Meta Tags -->
+    <title><%= headTitle %></title>
+    <meta name="title" content="<%= headTitle %>">
+    <meta name="description" content="<%= headDescription %>">
+    <meta name="author" content="Dynamic Decks">
+    <meta name="language" content="English">
+
+    <meta name="DC.title" content="Dynamic Decks" />
+    <meta name="geo.region" content="US-WA" />
+    <meta name="geo.placename" content="Spokane" />
+    <meta name="geo.position" content="47.71653;-117.383242" />
+    <meta name="ICBM" content="47.71653, -117.383242" />
+    <meta name = "keywords" content ="decks, washington decks, deck builder, deck builder spokane, spokane decks">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<%= headUrl %>">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= headUrl %>">
+    <meta property="og:title" content="<%= headTitle %>">
+    <meta property="og:description" content="<%= headDescription %>">
+    <meta property="og:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
+    <meta property="og:site_name" content="Dynamic Decks">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<%= headUrl %>">
+    <meta name="twitter:title" content="<%= headTitle %>">
+    <meta name="twitter:description" content="<%= headDescription %>">
+    <meta name="twitter:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
+
+    <!-- Additional SEO and Social Tags -->
+    <meta name="theme-color" content="#317EFB">
 </head>
 <%- include("includes/sticky") %>
 <header>
@@ -19,7 +58,7 @@
                 <h1 style="text-align: center; color: white; text-shadow: 1px 1px 4px #000;" class="title">Contact Us</h1>
                 <br>
                 <br>
-                <form action="https://formspree.io/f/mzblyrwl" method="POST" class = "contact-form" name="FormName">
+                <form action="/contact" method="POST" class = "contact-form" name="FormName">
                     <label>
                         Name:
                         <input type="text" name="name" style="width: 100%" placeholder="e.g. John Doe" required>
@@ -40,6 +79,10 @@
                         Message:
                         <textarea name="message" placeholder="Tell us about the project"></textarea>
                     </label>
+
+                    <br>
+                    <div class="g-recaptcha" data-sitekey="6Lchm2ErAAAAAGGXkJ9ane8BFngVnsa8tXF_PofO"></div>
+                    <br>
 
                     <button onclick="gtag_report_conversion(url);" type="submit" class="galleryButton" style="padding-top: 8px; padding-bottom: 8px; padding-left: 12px; padding-right: 12px;"><b>Send</b></button>
                 </form>

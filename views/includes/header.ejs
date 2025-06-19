@@ -1,40 +1,78 @@
-<div class="logo-container">
-    <a href="/"><img src="/img/icons/logo.png" alt="Dynamic Decks logo"></a>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; align-items: center;">
+    <div style="margin-left: 12px;">
+        <a href="/"><img src="/img/icons/logo.png" alt="Dynamic Decks logo" style="width: 100%; max-width: 640px;"></a>
+    </div>
+    <nav class="navbar" style="text-align: right; align-items: center; ">
+        <span class="hidden-mobile">
+            <span><a href="/">HOME</a></span>
+            <span>
+                <div class="dropdown">
+                    <div class="dropbtn"><ion-icon name="caret-down-outline"></ion-icon>SERVICES</div>
+                    <div class="dropdown-content" style="width: 100%; text-align: center;">
+                        <a href="/decks">DECKS</a>
+                        <hr>
+                        <a href="/pergolas">PERGOLAS</a>
+                        <hr>
+                        <a href="/covers">COVERS</a>
+                        <hr>
+                        <a href="/construction">SPECIALTY PROJECTS</a>
+                    </div>
+                </div>
+            </span>
+            <span><a href="/gallery">GALLERY</a></span>
+            <span><a href="/blog">BLOG</a></span>
+            <span><a href="/contact"><button style="font-size: clamp(12pt, 1.5vw, 36pt);">CONTACT</button></a></span>
+        </span>
+        <span class="unhidden-mobile" style="text-align: right;">
+            <span onclick="toggleMobileMenu()">☰</span>
+            <span><a href="/contact"><button style="font-size: clamp(12pt, 1.5vw, 36pt);">CONTACT</button></a></span>
+        </span>
+
+        <div id="mobileMenu" class="mobile-menu">
+            <a href="/">HOME</a>
+            <a href="/decks">DECKS</a>
+            <a href="/pergolas">PERGOLAS</a>
+            <a href="/covers">COVERS</a>
+            <a href="/construction">SPECIALTY PROJECTS</a>
+            <a href="/gallery">GALLERY</a>
+            <a href="/blog">BLOG</a>
+        </div>
+        
+    </nav>
 </div>
 
-<br>
 
-<nav class="navbar">
-    <div><a href="/" class="item">Home</a></div>
-    <div><div class="dropdown">
-        <div class="dropbtn"><ion-icon name="caret-down-outline"></ion-icon>Services</div>
-        <div class="dropdown-content">
-            <a href="/decks">Decks</a>
-            <hr>
-            <a href="/pergolas">Pergolas</a>
-            <hr>
-            <a href="/covers">Covers</a>
-            <hr>
-            <a href="/construction">Specialty Projects</a>
+<div style="padding-bottom: 8px; box-shadow: 0px 0px 8px #000;">           
+    <div class="nav-box">
+        <div class="header-to-single">
+            <div>
+                <img src="/img/ui/usa.png" alt="American flag made in US image" style="max-height: 128px;">
+            </div>
+            <div style="display: flex;
+  justify-content: center;
+  align-items: center;">
+                <div style="
+                        font-family: 'Montserrat', sans-serif;
+                        color: #333;
+                        background: linear-gradient(to right, #ffffff, #f7f7f7);
+                        border: 2px solid #ccc;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+                        padding: 12px 12px;
+                        max-width: 400px;
+                        text-align: center;
+                        " class="special">
+                        <h2 style="margin: 0 0 8px; font-weight: 700; font-size: large;">
+                        <span style="color: #b22222;"><b>Summer is here!</b></span>
+                        </h2>
+                        <p style="margin: 0; font-weight: 400; font-size: medium;">
+                            Get a <strong>free American flag</strong> when you choose us to build your project!
+                        </p>
+                </div>
+            </div>
         </div>
-    </div></div>
-    <div><a href="/gallery" class="item">Project Gallery</a></div>
-    <div><a href="/contact" class="item">Contact Us</a></div>
-    <div><a href="/blog" class="item">Blog</a></div>
-</nav>
-<hr>
-
-<div class="pop">           
-    <div class="nav-grid">
         <div>
-            <img src="/img/ui/usa.png" alt="American flag made in US image">
-        </div>
-        <div>
-            <br>
-            <div class="special"><h2><b style="text-decoration: underline;">Spring Into Summer!</b></h2><br>Get a free American Flag when you choose us to build your project!</div>
-        </div>
-        <div>
-            <br>
             <div class="show"><i>Countdown to the 4th of July!</i></div>
             <div class="grid-4">
                 <div>
@@ -57,7 +95,6 @@
         </div>   
     </div>        
 </div>
-<br>
 
 <button class="quote-button bottom-right" onclick="window.location.href='/contact';"><b>GET YOUR FREE QUOTE</b></button>
 
@@ -96,4 +133,10 @@
     clearInterval(x);
     }
     }, 1000);
+</script>
+<script>
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+  }
 </script>

@@ -2,11 +2,13 @@
 <head>
     
     <%- include("includes/head") %>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
-    <% const headUrl = "https://www.dynamicdecksinc.com/" %>
+    <%
+        const baseUrl = "https://www.dynamicdecksinc.com/";
+        const validPages = ["decks", "pergolas", "covers", "construction"];
+        const headUrl = validPages.includes(pageData.page) ? `${baseUrl}${pageData.page}` : `${baseUrl}${pageData.slug}`;
+    %>
     <% const headDescription = "Dynamic Decks builds durable, custom outdoor decks, pergolas, and covers with premium materials for lasting beauty and year-round outdoor living enjoyment." %>
-    <% const headTitle = "Dynamic Decks - Quality Decks Since 1999" %>
+    <% const headTitle = `Dynamic Decks - ${pageData.header}` %>
     
     <!-- Primary Meta Tags -->
     <title><%= headTitle %></title>
@@ -43,24 +45,6 @@
 
     <!-- Additional SEO and Social Tags -->
     <meta name="theme-color" content="#317EFB">
-
-    <!-- Structured Data JSON-LD example -->
-    <script type="application/ld+json">
-    {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Dynamic Decks",
-    "url": "https://www.dynamicdecksinc.com",
-    "logo": "<%= headUrl %>/img/icons/logo.png",
-    "sameAs": [
-        "https://www.facebook.com/dynamicdeck",
-        "https://twitter.com/yourhandle",
-        "https://www.instagram.com/dynamicdecks"
-    ]
-    }
-    </script>
-
-
 </head>
 <%- include("includes/sticky") %>
 <header>
@@ -71,58 +55,9 @@
     <div style="background-image: url('<%= pageData.hero %>'); background-position: center;
   background-size: cover;
   background-repeat: no-repeat;">
-        <div style=" text-align: left;color: #fff; font-family: 'Montserrat'; background-color: rgba(0, 0, 0, 0.5);" class="home-header">
-            <div>
-                <h1 class="title" style="text-shadow: 0px 0px 16px #000;">Experience the Dynamic Difference</h1>
-                <p style="font-size: x-large; text-shadow: 0px 0px 16px #000;">Designing and building beautiful decks since 1999</p>
-                <br>
-                <div class="hidden-mobile">
-                    <a href="/gallery"><button style="font-size: xx-large;">Check Out Our Gallery</button></a>
-                </div>
-                <div class="unhidden-mobile">
-                    <a href="/contact"><button style="font-size: large;">Request a Free Quote</button></a>
-                </div>
-            </div>
-            <div style="padding: 0 64px;" class="hidden-mobile">
-                <form action="/contact" method="POST" class = "contact-form" name="FormName">
-                    <h2>Request a free estimate</h2>
-                    <br>
-                    <label>
-                        Name:
-                        <input type="text" name="name" style="width: 100%" placeholder="e.g. John Doe" required>
-                    </label>
-                    <label>
-                        Phone number:
-                        <input id="phoneNumber" type="tel" name="phone" style="width: 100%" maxlength="16" placeholder="e.g. (509) 555 - 1234" required>
-                    </label>
-                    <label>
-                        Address:
-                        <input  id="searchTextField"type="text" name="address" required>
-                    </label>
-                    <label>
-                        Email:
-                        <input type="email" name="email" required placeholder="e.g. jdoe555@gmail.com">
-                    </label>
-                    <label>
-                        Message:
-                        <textarea name="message" placeholder="Tell us about the project"></textarea>
-                    </label>
-
-                    <br>
-                    <div class="g-recaptcha" data-sitekey="6Lchm2ErAAAAAGGXkJ9ane8BFngVnsa8tXF_PofO"></div>
-                    <br>
-
-                    <button onclick="gtag_report_conversion(url);" type="submit" class="galleryButton" style="padding-top: 8px; padding-bottom: 8px; padding-left: 12px; padding-right: 12px;"><b>Send</b></button>
-                </form>
-                <br>
-                All your information is stored safely. Questions about your data? Check our <a href="/privacy-policy" target="_blank">Privacy Policy</a>
-                <br>
-                <br>
-
-                
-            </div>
+        <div style="padding: 128px 8px; text-align: center; color: #fff; font-family: 'Montserrat'; background-color: rgba(0, 0, 0, 0.5);">
+            <h1 style="text-shadow: 0px 0px 8px #000;"><%= pageData.header %></h1>
         </div>
-    </div>
     <main>
         <%- include("includes/content") %>
     </main>

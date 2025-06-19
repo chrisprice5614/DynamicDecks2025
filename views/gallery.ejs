@@ -2,7 +2,46 @@
 <head>
     
     <%- include("includes/head") %>
-    <title>Dynamic Decks, Inc</title>
+
+    <% const headUrl = "https://www.dynamicdecksinc.com/gallery" %>
+    <% const headDescription = "Dynamic Decks builds durable, custom outdoor decks, pergolas, and covers with premium materials for lasting beauty and year-round outdoor living enjoyment." %>
+    <% const headTitle = "Dynamic Decks - Gallery" %>
+    
+    <!-- Primary Meta Tags -->
+    <title><%= headTitle %></title>
+    <meta name="title" content="<%= headTitle %>">
+    <meta name="description" content="<%= headDescription %>">
+    <meta name="author" content="Dynamic Decks">
+    <meta name="language" content="English">
+
+    <meta name="DC.title" content="Dynamic Decks" />
+    <meta name="geo.region" content="US-WA" />
+    <meta name="geo.placename" content="Spokane" />
+    <meta name="geo.position" content="47.71653;-117.383242" />
+    <meta name="ICBM" content="47.71653, -117.383242" />
+    <meta name = "keywords" content ="decks, washington decks, deck builder, deck builder spokane, spokane decks">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<%= headUrl %>">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= headUrl %>">
+    <meta property="og:title" content="<%= headTitle %>">
+    <meta property="og:description" content="<%= headDescription %>">
+    <meta property="og:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
+    <meta property="og:site_name" content="Dynamic Decks">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<%= headUrl %>">
+    <meta name="twitter:title" content="<%= headTitle %>">
+    <meta name="twitter:description" content="<%= headDescription %>">
+    <meta name="twitter:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
+
+    <!-- Additional SEO and Social Tags -->
+    <meta name="theme-color" content="#317EFB">
 </head>
 <%- include("includes/sticky") %>
 <header>

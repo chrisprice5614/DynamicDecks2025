@@ -16,6 +16,41 @@
 
             <div>
                 <br>
+                <h1>Edit Pages</h1>
+                <br>
+                <div>
+                    <a href="/edit/home"><button>Home</button></a>
+                </div>
+                <br>
+                <div>
+                    <a href="/edit/decks"><button>decks</button></a>
+                </div>
+                <br>
+                <div>
+                    <a href="/edit/pergolas"><button>pergolas</button></a>
+                </div>
+                <br>
+                <div>
+                    <a href="/edit/covers"><button>covers</button></a>
+                </div>
+                <br>
+                <div>
+                    <a href="/edit/construction"><button>construction</button></a>
+                </div>
+                <br>
+                <% blogs.forEach(blog => { %>
+                <div>
+                    <a href="/edit/<%= blog.id %>"><button><%= blog.slug %></button></a>
+                    <br>
+                    <a href="/delete-blog/<%= blog.id %>"><button>Delete Blog</button></a>
+                </div>
+                <% }) %>
+                <br>
+                <div>
+                    <a href="/add-blog"><button>Add Blog</button></a>
+                </div>
+                <br>
+                <br>
                 <h1>Admin Console</h1>
                 <br>
                 <h2>Sessions</h2>

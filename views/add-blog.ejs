@@ -1,0 +1,111 @@
+<html lang="en">
+<head>
+    
+    <%- include("includes/head") %>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>Dynamic Decks, Inc</title>
+</head>
+<%- include("includes/sticky") %>
+<header>
+    
+    <%- include("includes/header") %>
+</header>
+<body>
+    <main>
+        <h1 style="text-align: center;">
+            Add Blog
+        </h1>
+        <br>
+        <div class="page-content">
+            <form method="POST" action="/add-blog/" enctype="multipart/form-data" class="contact-form">
+                <label for="header">header</label>
+                <input 
+                type="text" 
+                id="header" 
+                name="header" 
+                placeholder="Enter blog header..." 
+                required
+                >
+
+                <!-- Hero Image Upload -->
+                <label for="heroImage">Hero Image</label>
+                <input type="file" id="heroImage" name="heroImage" accept="image/*">
+                <br>
+                <br>
+                <label for="markdown">Content</label>
+                <textarea 
+                id="markdown" 
+                name="content" 
+                placeholder="Write Markdown here..." 
+                required
+                rows="10"
+                ></textarea>
+
+                <!-- Image Upload UI -->
+                <label for="imageUpload">Insert Image</label>
+                <input type="file" id="imageUpload" accept="image/*">
+                <br>
+                <button type="button" onclick="uploadImage()">Upload & Insert</button>
+
+                <br><br>
+
+                <button type="submit">Add Blog</button>
+
+                <br><br>
+
+                
+            </form>
+            <br>
+            <div class="preview" id="preview"></div>
+        </div>
+    </main>
+    <script>
+            const textarea = document.getElementById("markdown");
+            const preview = document.getElementById("preview");
+
+            textarea.addEventListener("input", () => {
+                const markdownText = textarea.value;
+                preview.innerHTML = marked.parse(markdownText);
+            });
+
+            // Initialize preview on page load
+            preview.innerHTML = marked.parse(textarea.value);
+
+            async function uploadImage() {
+                const fileInput = document.getElementById("imageUpload");
+                const file = fileInput.files[0];
+
+                if (!file) return alert("Please select an image");
+
+                const formData = new FormData();
+                formData.append("image", file);
+
+                try {
+                    const res = await fetch("/upload-markdown-image", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    const data = await res.json();
+                    if (data.error) throw new Error(data.error);
+
+                    // Insert Markdown image syntax into textarea
+                    const markdownInput = document.getElementById("markdown");
+                    const cursor = markdownInput.selectionStart;
+                    const markdownImage = `![Alt text](${data.url})`;
+                    const text = markdownInput.value;
+                    markdownInput.value =
+                        text.substring(0, cursor) + markdownImage + text.substring(cursor);
+
+                    // Update preview after inserting image markdown
+                    preview.innerHTML = marked.parse(markdownInput.value);
+                } catch (err) {
+                    alert("Upload failed: " + err.message);
+                }
+            }
+        </script>
+</body>
+<footer>
+    <%- include("includes/footer") %>
+</footer>
+</html>
