@@ -5,7 +5,7 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
     outline: 0;
     vertical-align: baseline;
     background: transparent;
-    font-family: "Open Sans", sans-serif;
+    font-family: "Montserrat", sans-serif;
     font-weight: 400;
     font-style: normal;
     line-height: 1.4em;
@@ -29,17 +29,10 @@ i{
 
 body{
     overflow-x: hidden;
-    font-family: "Open Sans";
 }
 
-.logo-container{
-    text-align: center;
-}
 
-.logo-container img{
-    width: 50%;
-    filter: drop-shadow(0 -0 2px #000);
-}
+
 
 @media all and (max-width: 800px) {
     .logo-container img{
@@ -59,8 +52,7 @@ form input[type=text], form input[type='tel'],form input[type='email'], form tex
     box-sizing: border-box;
     transition: box-shadow 220ms ease;
     background-color: #fff;
-    font-family: "Open Sans", sans-serif;
-
+    font-family: "Montserrat ", sans-serif;
 }
 
   
@@ -80,18 +72,20 @@ header{
 }
 
 .navbar{
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     text-align: center;
     font-size: clamp(12pt, 1.5vw, 36pt);
+}
+
+.navbar span{
+    padding-right: 32px;
 }
 
 .navbar a{
     text-decoration: underline;
     text-decoration-color: transparent;
     transition: all 220ms ease-out;
-    color: var(--link);
-    font-weight: 700;
+    color: #fff;
+    font-weight: 600;
 }
 
 .navbar a:hover{
@@ -100,12 +94,31 @@ header{
     text-decoration: underline;
 }
 
+.nav-box{
+    display: grid; grid-template-columns: 2fr 1fr; text-align: center; font-size: clamp(12pt, 1.2vw, 36pt);
+}
+
+@media all and (max-width: 800px) {
+    .nav-box{
+        grid-template-columns: 1fr;
+    }
+    .navbar span{
+        padding-right: 8px;
+    }
+}
 .bloglink{
     text-decoration: underline;
     text-decoration-color: transparent;
     transition: all 220ms ease-out;
     color: #000;
     font-weight: 700;
+}
+
+.blog-container{
+    text-align: center;
+    border-radius: 4px;
+    box-shadow: 0px 0px 8px #000;
+    margin-bottom: 16px;
 }
 
 .bloglink:hover{
@@ -122,12 +135,12 @@ header{
 
 .dropbtn {
     margin: 0;
-    color: var(--link);
+    color: #fff;
     text-decoration: underline;
     text-decoration-color: transparent;
     transition: all 220ms ease-out;
-    font-family: "Open Sans";
-    font-weight: 700;
+    font-family: "Montserrat";
+    font-weight: 600;
 }
 
 
@@ -168,12 +181,6 @@ header{
     text-decoration: underline;
 }
 
-.nav-grid{
-    display: grid;
-    grid-template-columns: 1fr 1fr 2fr;
-    text-align: center;
-    font-size: clamp(12pt, 1.2vw, 36pt);
-}
 
 .nav-grid img{
     width: 50%;
@@ -209,7 +216,12 @@ header{
 
 header{
     color: white;
+    width: 100%;
+}
 
+.header-to-single{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
 }
 
 
@@ -218,28 +230,24 @@ header{
     color: black;
     border-radius: 12px;
     font-size: clamp(12pt, 1.2vw, 36pt);
-    padding: 10px 0px;
+    padding: 6px 0px;
     margin: 8px 10%;
   
     box-shadow: inset 0 1px 3px #4e4e4e;
     border: 1px solid #ccc;
 }
 
-.quote-button{
-    margin-top: 1em;
-    margin-bottom: 1em;
-    padding-top: 1.5em;
-    padding-bottom: 1.5em;
-    padding-left: 0.75em;
-    padding-right: 0.75em;
+.quote-button, button{
+    padding: 8px 0.75em;
     background-color: var(--link);
     transition: all 220ms ease-out;
     border: none;
     border-radius: 6px;
     box-shadow: 1px 1px 8px rgba(0,0,0,0.8);
+    font-weight: 600;
 }
 
-.quote-button:hover{
+.quote-button:hover, button:hover{
     box-shadow:  0px 0px 4px rgba(0,0,0,0.8);
     background-color: var(--linkHover);
     cursor:pointer;
@@ -270,20 +278,62 @@ video {
     justify-content: center;
 }
 
+.page-content{
+    width: 40%;
+    margin-left: 30%;
+    background-color: #fff;
+    padding: 16px;
+    box-shadow: 0px 0px 16px #000;
+    overflow: hidden;
+}
+
+.home-header{
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding: 128px 128px;
+}
+
+.unhidden-mobile{
+    display: none;
+}
+
+main{
+    background-image: url('/img/ui/wood-light.png');
+    overflow: hidden;
+}
+
 @media all and (max-width: 800px) {
     .video-wrapper{
         height: 320px;
     }
+    .header-to-single{
+        grid-template-columns: 1fr;
+        margin-bottom: 8px;
+    }
+    .page-content{
+        width: 100%;
+        margin: 0;
+    }
+    .home-header{
+        grid-template-columns: 1fr;
+        padding: 128px 32px;
+    }
+    .hidden-mobile{
+        display: none;
+    }
+    .unhidden-mobile{
+        display: block;
+    }
 }
 
 .title {
-    z-index: -50;
-    font-family: "Open Sans";
+    z-index: 50;
+    text-align: left;
+    color: #fff;
+    font-family: "Montserrat";
     font-size: clamp(32pt, 4vw, 64pt);
-    font-weight: 600;
+    font-weight: 700;
     padding: 40px 0px 0px 0px;
     line-height: 1.2em;
-    text-align: center;
 }
 
 .headerVid{
@@ -305,13 +355,13 @@ video {
 }
 
 h1, .input-h1 {
-    font-family: "capitolina";
-    font-weight: 300;
+    font-family: "Montserrat";
+    font-weight: 600;
     font-size: clamp(32pt, 2vw, 64pt);
 }
 
 .input-p{
-    font-family: "Open Sans", sans-serif;
+    font-family: "Montserrat", sans-serif;
 }
 
 .edit-input {
@@ -363,7 +413,7 @@ footer{
     text-decoration: underline;
     text-decoration-color: transparent;
     transition: all 220ms ease-out;
-    font-weight: 700;
+    font-weight: 500;
 }
 
 .footer a:hover, .sticky-box a:hover{
@@ -501,4 +551,40 @@ footer{
 .b-loaded {
   opacity: 1;
   transform: scale(1);
+}
+
+.mobile-menu {
+  display: none;
+  position: absolute;
+  top: 60px; /* adjust as needed to position below your header */
+  right: 0;
+  background-color: #222;
+  padding: 16px;
+  box-shadow: 0px 0px 8px #000;
+  z-index: 9999;
+  text-align: right;
+  flex-direction: column;
+  border-radius: 0 0 0 12px;
+}
+
+.mobile-menu a {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  color: white;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  margin: 8px 0;
+  transition: all 220ms ease-out;
+  font-size: clamp(12pt, 1.5vw, 24pt);
+}
+
+.mobile-menu a:hover {
+  color: var(--linkHover);
+  text-decoration-color: var(--linkHover);
+}
+
+@media (min-width: 801px) {
+  .mobile-menu {
+    display: none !important;
+  }
 }
