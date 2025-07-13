@@ -49,7 +49,12 @@
     </nav>
     <br>
 </div>
-
+<script>
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+  }
+</script>
 
 
 <button class="quote-button bottom-right" onclick="window.location.href='/contact';"><b>GET YOUR FREE QUOTE</b></button>
