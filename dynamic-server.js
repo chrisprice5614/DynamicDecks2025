@@ -581,9 +581,43 @@ app.get('/report.pdf', mustHaveReportAuth, async (req,res) => {
                 return res.status(500).send('Failed to render report');
             }
 
-            const browser = await puppeteer.launch({
-                args: ['--no-sandbox','--disable-setuid-sandbox']
-            });
+            async function launchChromium() {
+                const baseArgs = ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage'];
+                const common = { headless: 'new', args: baseArgs };
+                // Respect env override if provided
+                if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+                    try {
+                        return await puppeteer.launch({ ...common, executablePath: process.env.PUPPETEER_EXECUTABLE_PATH });
+                    } catch(e) {
+                        console.error('Puppeteer launch failed with env executable:', e.message);
+                    }
+                }
+                // Try common system paths first
+                const candidates = ['/usr/bin/chromium','/usr/bin/chromium-browser','/snap/bin/chromium','/usr/bin/google-chrome','/usr/bin/google-chrome-stable'];
+                for (const path of candidates) {
+                    try {
+                        return await puppeteer.launch({ ...common, executablePath: path });
+                    } catch(e) {
+                        // continue
+                    }
+                }
+                // Fallback to default embedded Chromium
+                try {
+                    return await puppeteer.launch(common);
+                } catch(e) {
+                    console.error('Puppeteer default launch failed:', e.message);
+                }
+                throw new Error('Chromium launch failed; missing system libraries or browser. See https://pptr.dev/troubleshooting');
+            }
+
+            let browser;
+            try {
+                browser = await launchChromium();
+            } catch (launchErr) {
+                console.error('Puppeteer launch error:', launchErr);
+                return res.status(500).send('PDF generation is temporarily unavailable on this server. Please install Chromium dependencies (libatk, pango, gtk, gbm, etc.) or set PUPPETEER_EXECUTABLE_PATH to a working browser.');
+            }
+
             const page = await browser.newPage();
             await page.setContent(html, { waitUntil: 'networkidle0' });
             const pdf = await page.pdf({
@@ -600,6 +634,56 @@ app.get('/report.pdf', mustHaveReportAuth, async (req,res) => {
     } catch(err) {
         console.error('PDF error:', err);
         return res.status(500).send('Failed to generate PDF');
+    }
+});
+
+// Simple health check for Puppeteer environment
+app.get('/puppeteer-health', async (req, res) => {
+    try {
+        const baseArgs = ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage'];
+        const common = { headless: 'new', args: baseArgs };
+        let usedPath = 'bundled';
+        let browser;
+
+        // Try env path first
+        if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+            try {
+                usedPath = process.env.PUPPETEER_EXECUTABLE_PATH;
+                browser = await puppeteer.launch({ ...common, executablePath: usedPath });
+            } catch (e) {
+                // reset and continue
+                usedPath = 'bundled';
+            }
+        }
+        // Try system candidates
+        if (!browser) {
+            const candidates = ['/usr/bin/chromium','/usr/bin/chromium-browser','/snap/bin/chromium','/usr/bin/google-chrome','/usr/bin/google-chrome-stable'];
+            for (const path of candidates) {
+                try {
+                    usedPath = path;
+                    browser = await puppeteer.launch({ ...common, executablePath: path });
+                    break;
+                } catch(e) {
+                    // keep trying
+                }
+            }
+        }
+        // Try bundled
+        if (!browser) {
+            try {
+                usedPath = 'bundled';
+                browser = await puppeteer.launch(common);
+            } catch(e) {
+                return res.status(500).json({ ok: false, error: e.message, hint: 'Install system Chromium or set PUPPETEER_EXECUTABLE_PATH' });
+            }
+        }
+
+        const version = await browser.version();
+        await browser.close();
+        return res.json({ ok: true, usedPath, version, envPath: process.env.PUPPETEER_EXECUTABLE_PATH || null });
+    } catch (err) {
+        console.error('Puppeteer health error:', err);
+        return res.status(500).json({ ok: false, error: err.message });
     }
 });
 
