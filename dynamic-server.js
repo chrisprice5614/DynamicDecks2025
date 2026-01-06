@@ -6,13 +6,16 @@ const db = require("better-sqlite3")("database.db") //npm install better-sqlite3
 const body_parser = require("body-parser")
 const axios = require('axios');
 const requestIp = require('request-ip');
-const bcrypt = require("bcrypt") //npm install bcrypt
+const bcrypt = require("bcryptjs") //npm install bcryptjs
 const cookieParser = require("cookie-parser")//npm install cookie-parser
 const nodemailer = require("nodemailer")
 const multer = require("multer")
 const sharp = require('sharp');
 const fs = require("fs");
 const marked = require('marked');
+const puppeteer = require('puppeteer');
+// JWT secret fallback for local/dev to prevent crashes when .env missing
+const JWT_SECRET = process.env.JWTSECRET || 'local-dev-secret';
 const fileStorageEngine = multer.diskStorage({
     
     destination: (req, file, cb) => {
@@ -211,7 +214,7 @@ app.use(function (req, res, next) {
     //Converted - Converted to form submission
 
     try {
-        const decoded = jwt.verify(req.cookies.login, process.env.JWTSECRET)
+        const decoded = jwt.verify(req.cookies.login, JWT_SECRET)
         req.user = decoded
     } catch(err){
         req.user = false
@@ -220,13 +223,13 @@ app.use(function (req, res, next) {
     res.locals.user = req.user;
 
     try {
-        const decoded = jwt.verify(req.cookies.session, process.env.JWTSECRET)
+        const decoded = jwt.verify(req.cookies.session, JWT_SECRET)
         req.session = decoded
     } catch(err) {
         let salt = bcrypt.genSaltSync(10)
         let sessionId = bcrypt.hashSync(ip + Date.now().toString(), salt)
         req.session = {exp: Math.floor(Date.now() / 1000) + (60*60*0.5), sessionId, visits: [], converted: false};
-        const ourTokenValue = jwt.sign(req.session, process.env.JWTSECRET)
+        const ourTokenValue = jwt.sign(req.session, JWT_SECRET)
         
 
         res.cookie("session",ourTokenValue, {
@@ -241,25 +244,24 @@ app.use(function (req, res, next) {
     }
 
 
-    if(req.session.visits.size > 20)
-    {
-        req.session.visits.push({url: req.originalUrl, time: Date.now()})
-    
-
-        const sessionStatement = db.prepare("UPDATE sessions set visits = ? WHERE sessionId = ?")
-        sessionStatement.run(JSON.stringify(req.session.visits), req.session.sessionId)
-
-        
-        req.session = {exp: Math.floor(Date.now() / 1000) + (60*60*0.5), sessionId: req.session.sessionId, visits: req.session.visits, converted: req.session.converted};
-
-        const ourTokenValue = jwt.sign(req.session, process.env.JWTSECRET)
-
-        res.cookie("session",ourTokenValue, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "strict",
-            maxAge: 1000 * 60 * 60 * 0.5
-    }) //name, string to remember,
+    // Record visits robustly (cap at 50 to avoid oversized cookies)
+    try {
+        if (!Array.isArray(req.session.visits)) req.session.visits = [];
+        if (req.session.visits.length < 50) {
+            req.session.visits.push({ url: req.originalUrl, time: Date.now() });
+            const sessionStatement = db.prepare("UPDATE sessions set visits = ? WHERE sessionId = ?");
+            sessionStatement.run(JSON.stringify(req.session.visits), req.session.sessionId);
+            req.session = { exp: Math.floor(Date.now() / 1000) + (60 * 60 * 0.5), sessionId: req.session.sessionId, visits: req.session.visits, converted: req.session.converted };
+            const ourTokenValue = jwt.sign(req.session, JWT_SECRET);
+            res.cookie("session", ourTokenValue, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "strict",
+                maxAge: 1000 * 60 * 60 * 0.5
+            });
+        }
+    } catch (e) {
+        // non-fatal; continue
     }
 
     //console.log(req.session)
@@ -273,6 +275,333 @@ app.get("/thanks", (req,res) => {
 
     return res.render("thanks")
 })
+
+// Simple cookie-based auth for reports
+function mustHaveReportAuth(req, res, next) {
+    if (req.cookies.reportAuth === "1") return next();
+    return res.redirect("/report-login");
+}
+
+// Build metrics for the report
+function buildReportMetrics() {
+    const sessionsStmt = db.prepare("SELECT * FROM sessions ORDER BY date ASC");
+    const sessions = sessionsStmt.all();
+
+    const totalSessions = sessions.length;
+    const convertedSessions = sessions.filter(s => s.converted === 1).length;
+
+    const now = Date.now();
+    const DAYS = (n) => now - n * 24 * 60 * 60 * 1000;
+    const inRange = (ms, startMs) => ms >= startMs && ms <= now;
+    const monthStart = DAYS(30);
+
+    const last7 = sessions.filter(s => inRange(s.date, DAYS(7))).length;
+    const last30 = sessions.filter(s => inRange(s.date, DAYS(30))).length;
+    const last90 = sessions.filter(s => inRange(s.date, DAYS(90))).length;
+
+    const conv7 = sessions.filter(s => s.converted === 1 && inRange(s.date, DAYS(7))).length;
+    const conv30 = sessions.filter(s => s.converted === 1 && inRange(s.date, DAYS(30))).length;
+    const conv90 = sessions.filter(s => s.converted === 1 && inRange(s.date, DAYS(90))).length;
+
+    // Aggregate page visits from stored visits JSON, if present
+    const pageCounts = {};
+    const entryCounts = {};
+    const exitCounts = {};
+    let sessionsWithContact = 0, sessionsWithRequest = 0, sessionsWithCareer = 0;
+    // Monthly breakdowns
+    const pageCountsMonth = {};
+    const entryCountsMonth = {};
+    const exitCountsMonth = {};
+    let sessionsWithContactMonth = 0, sessionsWithRequestMonth = 0, sessionsWithCareerMonth = 0;
+    let totalPagesAll = 0, totalPagesMonth = 0;
+    let bouncesAll = 0, bouncesMonth = 0;
+    for (const s of sessions) {
+        if (s.visits) {
+            try {
+                const arr = JSON.parse(s.visits);
+                if (Array.isArray(arr)) {
+                    // entry/exit pages
+                    const first = arr[0] && arr[0].url ? arr[0].url : null;
+                    const last = arr[arr.length - 1] && arr[arr.length - 1].url ? arr[arr.length - 1].url : null;
+                    if (first) entryCounts[first] = (entryCounts[first] || 0) + 1;
+                    if (last) exitCounts[last] = (exitCounts[last] || 0) + 1;
+
+                    for (const v of arr) {
+                        const url = (v && v.url) ? v.url : null;
+                        if (!url) continue;
+                        pageCounts[url] = (pageCounts[url] || 0) + 1;
+                        if (url.startsWith('/contact')) sessionsWithContact++;
+                        if (url.startsWith('/request')) sessionsWithRequest++;
+                        if (url.startsWith('/career')) sessionsWithCareer++;
+                    }
+
+                    // monthly
+                    if (inRange(s.date, monthStart)) {
+                        const mFirst = first;
+                        const mLast = last;
+                        if (mFirst) entryCountsMonth[mFirst] = (entryCountsMonth[mFirst] || 0) + 1;
+                        if (mLast) exitCountsMonth[mLast] = (exitCountsMonth[mLast] || 0) + 1;
+
+                        for (const v of arr) {
+                            const url = (v && v.url) ? v.url : null;
+                            if (!url) continue;
+                            pageCountsMonth[url] = (pageCountsMonth[url] || 0) + 1;
+                            if (url.startsWith('/contact')) sessionsWithContactMonth++;
+                            if (url.startsWith('/request')) sessionsWithRequestMonth++;
+                            if (url.startsWith('/career')) sessionsWithCareerMonth++;
+                        }
+                        totalPagesMonth += arr.length;
+                        if (arr.length <= 1) bouncesMonth++;
+                    }
+
+                    totalPagesAll += arr.length;
+                    if (arr.length <= 1) bouncesAll++;
+                }
+            } catch(err) {
+                // ignore malformed visits
+            }
+        }
+    }
+
+    const topPages = Object.entries(pageCounts)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0, 20)
+        .map(([url, count]) => ({url, count}));
+
+    const topEntryPages = Object.entries(entryCounts)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0, 15)
+        .map(([url, count]) => ({url, count}));
+
+    const topExitPages = Object.entries(exitCounts)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0, 15)
+        .map(([url, count]) => ({url, count}));
+
+    const topPagesMonth = Object.entries(pageCountsMonth)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0, 20)
+        .map(([url, count]) => ({url, count}));
+
+    const topEntryPagesMonth = Object.entries(entryCountsMonth)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0, 15)
+        .map(([url, count]) => ({url, count}));
+
+    const topExitPagesMonth = Object.entries(exitCountsMonth)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0, 15)
+        .map(([url, count]) => ({url, count}));
+
+    // Keyword extraction from pages and blogs
+    const pageRows = db.prepare("SELECT page, header, content, hero FROM pages").all();
+    const blogRowsFull = db.prepare("SELECT id, page, active, slug, hero, content, header FROM blogs").all();
+    const blogRows = blogRowsFull.filter(b => b.active === 1);
+
+    const textBlob = [...pageRows, ...blogRows]
+        .map(r => `${r.header || ''} ${r.content || ''}`)
+        .join(' ')
+        .toLowerCase()
+        .replace(/<[^>]*>/g, ' ') // strip HTML
+        .replace(/[^a-z0-9\s-]/g, ' ');
+
+    const stop = new Set([
+        'the','and','a','to','of','in','for','on','is','it','that','with','as','at','by','be','are','or','from','an','this','we','you','your','our','us','i','have','has','was','were','will','can','about','not','but','if','they','their','there','also','all','more','any','how','what','when','which','who'
+    ]);
+    const words = textBlob.split(/\s+/).filter(w => w && w.length > 2 && !stop.has(w));
+    const freq = {};
+    for (const w of words) freq[w] = (freq[w] || 0) + 1;
+    const topKeywords = Object.entries(freq)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0, 50)
+        .map(([word, count]) => ({word, count}));
+
+    // Bigram (two-word phrase) frequencies
+    const bigramFreq = {};
+    for (let i = 0; i < words.length - 1; i++) {
+        const a = words[i], b = words[i+1];
+        if (stop.has(a) || stop.has(b)) continue;
+        const key = `${a} ${b}`;
+        bigramFreq[key] = (bigramFreq[key] || 0) + 1;
+    }
+    const topBigrams = Object.entries(bigramFreq)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0, 30)
+        .map(([phrase, count]) => ({phrase, count}));
+
+    // Asset counts
+    let imageCount = 0;
+    const galleryRows = db.prepare("SELECT * FROM gallery").all();
+    const galleryCategories = { pergola:0, cover:0, privacywall:0, decks:0, stairs:0, railing:0, lighting:0 };
+    try {
+        const galleryDir = path.join(__dirname, 'public', 'img', 'gallery');
+        const files = fs.readdirSync(galleryDir);
+        imageCount = files.filter(f => /\.(webp|png|jpe?g|gif|svg)$/i.test(f)).length;
+    } catch(err) {}
+    for (const g of galleryRows) {
+        for (const k of Object.keys(galleryCategories)) {
+            if (g[k] === 1) galleryCategories[k]++;
+        }
+    }
+
+    // Content summaries
+    const pagesSummary = pageRows.map(p => ({
+        page: p.page,
+        header: p.header || '',
+        hero: !!p.hero,
+        headerChars: (p.header || '').length,
+        contentChars: (p.content || '').length
+    }));
+
+    const blogsSummary = blogRowsFull
+        .sort((a,b) => b.id - a.id)
+        .map(b => ({
+            id: b.id,
+            slug: b.slug,
+            header: b.header || '',
+            active: b.active === 1,
+            hero: !!b.hero,
+            headerChars: (b.header || '').length,
+            contentChars: (b.content || '').length
+        }));
+
+    const totalBlogs = blogsSummary.length;
+    const activeBlogs = blogsSummary.filter(b => b.active).length;
+
+    // Time series by day (last 30 days)
+    const daySessions = {};
+    const dayConversions = {};
+    const startRange = monthStart;
+    for (const s of sessions) {
+        if (!s.date || s.date < startRange) continue;
+        const d = new Date(s.date);
+        const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+        daySessions[key] = (daySessions[key] || 0) + 1;
+        if (s.converted === 1) dayConversions[key] = (dayConversions[key] || 0) + 1;
+    }
+    const timeSeries = Object.keys(daySessions)
+        .sort()
+        .map(k => ({ day: k, sessions: daySessions[k], conversions: dayConversions[k] || 0 }));
+
+    const firstDate = new Date(monthStart);
+    const lastDate = new Date(now);
+
+    return {
+        totals: {
+            totalSessions,
+            convertedSessions,
+            conversionRate: totalSessions ? (convertedSessions / totalSessions) : 0,
+            imageCount,
+            avgPagesPerSession: totalSessions ? (totalPagesAll / totalSessions) : 0,
+            bounceRate: totalSessions ? (bouncesAll / totalSessions) : 0
+        },
+        ranges: {
+            last7, last30, last90,
+            conv7, conv30, conv90
+        },
+        pages: topPages,
+        entries: topEntryPages,
+        exits: topExitPages,
+        funnel: {
+            sessionsWithContact,
+            sessionsWithRequest,
+            sessionsWithCareer
+        },
+        keywords: topKeywords,
+        bigrams: topBigrams,
+        gallery: {
+            categories: galleryCategories
+        },
+        content: {
+            pages: pagesSummary,
+            blogs: blogsSummary,
+            totalBlogs,
+            activeBlogs
+        },
+        timeSeries,
+        month: {
+            totals: {
+                totalSessions: Object.values(daySessions).reduce((a,b)=>a+b,0),
+                convertedSessions: Object.values(dayConversions).reduce((a,b)=>a+b,0),
+                conversionRate: (Object.values(daySessions).reduce((a,b)=>a+b,0)) ? (Object.values(dayConversions).reduce((a,b)=>a+b,0) / Object.values(daySessions).reduce((a,b)=>a+b,0)) : 0,
+                avgPagesPerSession: (Object.values(daySessions).reduce((a,b)=>a+b,0)) ? (totalPagesMonth / Object.values(daySessions).reduce((a,b)=>a+b,0)) : 0,
+                bounceRate: (Object.values(daySessions).reduce((a,b)=>a+b,0)) ? (bouncesMonth / Object.values(daySessions).reduce((a,b)=>a+b,0)) : 0
+            },
+            pages: topPagesMonth,
+            entries: topEntryPagesMonth,
+            exits: topExitPagesMonth,
+            funnel: {
+                sessionsWithContact: sessionsWithContactMonth,
+                sessionsWithRequest: sessionsWithRequestMonth,
+                sessionsWithCareer: sessionsWithCareerMonth
+            },
+            timeSeries
+        },
+        window: {
+            start: firstDate ? firstDate.toISOString() : null,
+            end: lastDate ? lastDate.toISOString() : null
+        }
+    };
+}
+
+// Report login page
+app.get('/report-login', (req,res) => {
+    return res.render('report-login');
+});
+
+// Handle report password
+app.post('/report-login', (req,res) => {
+    const pw = (req.body && req.body.password) ? req.body.password : '';
+    if (pw === 'adminreport') {
+        res.cookie('reportAuth', '1', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 4
+        });
+        return res.redirect('/report');
+    }
+    return res.render('report-login', { error: 'Invalid password' });
+});
+
+// View report HTML
+app.get('/report', mustHaveReportAuth, (req,res) => {
+    const metrics = buildReportMetrics();
+    return res.render('report', { metrics });
+});
+
+// Download PDF
+app.get('/report.pdf', mustHaveReportAuth, async (req,res) => {
+    try {
+        const metrics = buildReportMetrics();
+        // Render EJS to HTML string
+        res.render('report', { metrics }, async (err, html) => {
+            if (err) {
+                console.error('Render error:', err);
+                return res.status(500).send('Failed to render report');
+            }
+
+            const browser = await puppeteer.launch({
+                args: ['--no-sandbox','--disable-setuid-sandbox']
+            });
+            const page = await browser.newPage();
+            await page.setContent(html, { waitUntil: 'networkidle0' });
+            const pdf = await page.pdf({
+                format: 'A4',
+                printBackground: true,
+                margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' }
+            });
+            await browser.close();
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="dynamicdecks-report.pdf"');
+            return res.send(pdf);
+        });
+    } catch(err) {
+        console.error('PDF error:', err);
+        return res.status(500).send('Failed to generate PDF');
+    }
+});
 
 
 app.get("/blog/:slug", (req,res) => {
@@ -1176,7 +1505,7 @@ app.get("/login", (req,res) => {
 
         if(compare)
         {
-            const ourTokenValue = jwt.sign({exp: Math.floor(Date.now() / 1000) + (60*60*4), key: key}, process.env.JWTSECRET) //Creating a token for logging in
+            const ourTokenValue = jwt.sign({exp: Math.floor(Date.now() / 1000) + (60*60*4), key: key}, JWT_SECRET) //Creating a token for logging in
 
             res.cookie("login",ourTokenValue, {
                 httpOnly: true,
