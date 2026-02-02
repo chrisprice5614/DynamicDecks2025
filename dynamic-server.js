@@ -951,6 +951,11 @@ app.get("/construction", (req, res) => {
     return res.render("page", {pageData});
 })
 
+app.get("/home-show", (req, res) => {
+
+    return res.render("home-show")
+})
+
 app.get("/contact", (req, res) => {
 
     return res.render("contact")
