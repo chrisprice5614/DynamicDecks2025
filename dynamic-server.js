@@ -1012,14 +1012,21 @@ app.post("/contact", async (req, res) => {
       return res.status(500).send("Error submitting form to Formspree");
     }
 
-    const formspreeJson = await formspreeRes.json();
+        const formspreeJson = await formspreeRes.json();
 
-    // 3. Respond to your client with success or pass through Formspree response
-    res.status(200).json({ message: "Form submitted successfully", formspree: formspreeJson });
+        // 3. Respond to your client
+        const acceptsJson = req.xhr || (req.headers.accept && req.headers.accept.includes("application/json"));
+        if (acceptsJson) {
+            return res.status(200).json({ message: "Form submitted successfully", formspree: formspreeJson });
+        }
+        return res.redirect("/thanks");
 
   } catch (err) {
     console.error(err);
-    res.status(500).send("Internal server error");
+        if (req.xhr || (req.headers.accept && req.headers.accept.includes("application/json"))) {
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        return res.status(500).send("Internal server error");
   }
 });
 
