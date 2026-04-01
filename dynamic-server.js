@@ -694,6 +694,8 @@ app.get("/blog/:slug", (req,res) => {
     const blogStatement = db.prepare("SELECT * FROM blogs WHERE slug = ?")
     const pageData = blogStatement.get(req.params.slug)
 
+    if (!pageData) return res.status(404).render("404")
+
     return res.render("page", {pageData})
 })
 

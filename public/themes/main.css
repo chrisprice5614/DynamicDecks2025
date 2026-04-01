@@ -66,7 +66,7 @@ form input[type=text], form input[type='tel'],form input[type='email'], form tex
   }
 
 header{
-    background-image: url("/img/ui/wood-bckg.png");
+    background-image: url("/img/ui/wood-bckg.webp");
     background-repeat: repeat;
     box-shadow: 0 0 4px #000;
 }
@@ -156,7 +156,7 @@ header{
 .dropdown-content {
     display: none;
     position: absolute;
-    background-image: url("/img/ui/wood-bckg.png");
+    background-image: url("/img/ui/wood-bckg.webp");
     
     z-index: 1;
 }
@@ -297,7 +297,7 @@ video {
 }
 
 main{
-    background-image: url('/img/ui/wood-light.png');
+    background-image: url('/img/ui/wood-light.webp');
     overflow: hidden;
 }
 
@@ -390,7 +390,7 @@ h1, .input-h1 {
 
 footer{
     
-    background-image: url("/img/ui/wood-bckg.png");
+    background-image: url("/img/ui/wood-bckg.webp");
     padding-top: 32px;
     color: white;
 }
@@ -426,7 +426,7 @@ footer{
     position: -webkit-sticky;
     top: 0px;
     
-    background-image: url("/img/ui/cypress-bck.png");
+    background-image: url("/img/ui/cypress-bck.webp");
     padding: 2px 20px 2px 2px;
     z-index: 5000;
     height: 32px;
