@@ -771,7 +771,21 @@ app.get("/", (req, res) => {
 
     pageData.content = enhanceContentHtml(marked.parse(pageData.content)); // Convert Markdown to HTML
 
-    return res.render("homepage", {pageData});
+    const fallbackHero = "/img/ui/wood-light.webp";
+    const heroRows = db.prepare(
+        "SELECT page, hero FROM pages WHERE page IN ('decks', 'pergolas', 'covers', 'construction')"
+    ).all();
+    const serviceHeroes = {
+        decks: fallbackHero,
+        pergolas: fallbackHero,
+        covers: fallbackHero,
+        construction: fallbackHero,
+    };
+    for (const row of heroRows) {
+        if (row && row.page && row.hero) serviceHeroes[row.page] = row.hero;
+    }
+
+    return res.render("homepage", { pageData, serviceHeroes });
 })
 
 app.get("/logout", (req,res) => {

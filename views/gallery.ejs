@@ -4,6 +4,7 @@
     <% const headUrl = "https://www.dynamicdecksinc.com/gallery" %>
     <% const headDescription = "Browse Dynamic Decks' project gallery: custom decks, pergolas, covers, railings, and specialty outdoor projects built in Spokane, WA." %>
     <% const headTitle = "Dynamic Decks - Project Gallery | Spokane Deck Builder" %>
+    <% const galleryPhotosForScript = images.map(img => ({ src: '/img/gallery/' + img.path, caption: img.description || '' })); %>
 
     <title><%= headTitle %></title>
     <meta name="title" content="<%= headTitle %>">
@@ -94,17 +95,29 @@
         </div>
         <% } %>
 
-        <!-- Gallery Masonry Grid -->
-        <div class="gallery-masonry" id="galleryGrid">
-            <% images.forEach(image => { %>
-            <div class="gallery-item" onclick="openLightbox('/img/gallery/<%= image.path %>', '<%= image.description %>')">
-                <img
-                    src="/img/gallery/<%= image.path %>"
-                    alt="<%= image.description %>"
-                    loading="lazy"
-                >
-                <div class="gallery-item-overlay">
-                    <p><%= image.description %></p>
+        <% if(images.length === 0) { %>
+        <div style="text-align:center; padding: 60px 20px; color: var(--text-muted);">
+            <div class="success-icon-wrap" style="margin: 0 auto 16px; width: 64px; height: 64px;"><ion-icon name="images-outline" aria-hidden="true"></ion-icon></div>
+            <h3>No photos in this category yet</h3>
+            <p style="margin-top: 8px;">Check back soon or <a href="/gallery" style="color: var(--accent);">view all projects</a>.</p>
+        </div>
+        <% } else { %>
+        <div class="gallery-grid" id="galleryGrid" data-gallery-root>
+            <% images.forEach((image, gi) => { %>
+            <div class="gallery-item" data-gallery-index="<%= gi %>" tabindex="0" role="button" aria-label="Open photo preview">
+                <div class="gallery-item-inner">
+                    <img
+                        class="gallery-thumb"
+                        src="/img/gallery/<%= image.path %>"
+                        alt="<%= image.description %>"
+                        loading="lazy"
+                        decoding="async"
+                        fetchpriority="low"
+                        sizes="(max-width: 480px) 100vw, (max-width: 900px) 50vw, 33vw"
+                    >
+                    <div class="gallery-item-overlay" aria-hidden="true">
+                        <p><%= image.description %></p>
+                    </div>
                 </div>
                 <% if(user) { %>
                 <a href="/delete/<%= image.id %>" class="gallery-delete-btn" onclick="event.stopPropagation(); return confirm('Delete this photo?');" title="Delete photo">
@@ -114,23 +127,26 @@
             </div>
             <% }) %>
         </div>
-
-        <% if(images.length === 0) { %>
-        <div style="text-align:center; padding: 60px 20px; color: var(--text-muted);">
-            <div class="success-icon-wrap" style="margin: 0 auto 16px; width: 64px; height: 64px;"><ion-icon name="images-outline" aria-hidden="true"></ion-icon></div>
-            <h3>No photos in this category yet</h3>
-            <p style="margin-top: 8px;">Check back soon or <a href="/gallery" style="color: var(--accent);">view all projects</a>.</p>
-        </div>
         <% } %>
     </div>
 </section>
 
+<script type="application/json" id="gallery-photos-data"><%- JSON.stringify(galleryPhotosForScript).replace(/</g, '\\u003c') %></script>
+
 <!-- LIGHTBOX -->
-<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
-    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">
+<div class="lightbox-overlay" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo preview">
+    <button type="button" class="lightbox-close" onclick="closeLightbox()" aria-label="Close">
         <ion-icon name="close-outline"></ion-icon>
     </button>
-    <img class="lightbox-img" id="lightbox-img" src="" alt="">
+    <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" onclick="galleryStep(-1)" aria-label="Previous photo">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+    </button>
+    <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" onclick="galleryStep(1)" aria-label="Next photo">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+    </button>
+    <div class="lightbox-stage">
+        <img class="lightbox-img" id="lightbox-img" alt="">
+    </div>
     <div class="lightbox-caption" id="lightbox-caption"></div>
 </div>
 
@@ -146,52 +162,109 @@
     </div>
 </section>
 
-</body>
 <footer><%- include("includes/footer") %></footer>
-</html>
 
 <script>
-// Shuffle gallery for variety
-function shuffleGallery() {
-    const grid = document.getElementById('galleryGrid');
-    if (!grid) return;
-    const items = Array.from(grid.children);
-    for (let i = items.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        grid.appendChild(items[j]);
-        items.splice(j, 1);
+(function () {
+    var dataEl = document.getElementById('gallery-photos-data');
+    var gallerySlides = [];
+    if (dataEl && dataEl.textContent) {
+        try { gallerySlides = JSON.parse(dataEl.textContent); } catch (e) { gallerySlides = []; }
     }
-}
-shuffleGallery();
 
-// Lightbox
-function openLightbox(src, caption) {
-    const lb = document.getElementById('lightbox');
-    const img = document.getElementById('lightbox-img');
-    const cap = document.getElementById('lightbox-caption');
-    img.src = src;
-    img.alt = caption;
-    cap.textContent = caption;
-    lb.classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('open');
-    document.body.style.overflow = '';
-}
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeLightbox();
+    var lightboxIndex = 0;
+
+    window.openLightbox = function (index) {
+        var lb = document.getElementById('lightbox');
+        var img = document.getElementById('lightbox-img');
+        var cap = document.getElementById('lightbox-caption');
+        var prev = document.getElementById('lightbox-prev');
+        var next = document.getElementById('lightbox-next');
+        if (!lb || !img || !gallerySlides.length) return;
+        lightboxIndex = Math.max(0, Math.min(index, gallerySlides.length - 1));
+        var slide = gallerySlides[lightboxIndex];
+        img.src = slide.src;
+        img.alt = slide.caption || 'Gallery photo';
+        cap.textContent = slide.caption || '';
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        var single = gallerySlides.length < 2;
+        if (prev) prev.style.display = single ? 'none' : '';
+        if (next) next.style.display = single ? 'none' : '';
+    };
+
+    window.closeLightbox = function () {
+        var lb = document.getElementById('lightbox');
+        var img = document.getElementById('lightbox-img');
+        if (!lb || !img) return;
+        lb.classList.remove('open');
+        document.body.style.overflow = '';
+        img.removeAttribute('src');
+    };
+
+    window.galleryStep = function (delta) {
+        if (!gallerySlides.length) return;
+        lightboxIndex = (lightboxIndex + delta + gallerySlides.length) % gallerySlides.length;
+        window.openLightbox(lightboxIndex);
+    };
+
+    var grid = document.getElementById('galleryGrid');
+    if (grid) {
+        grid.querySelectorAll('.gallery-item[data-gallery-index]').forEach(function (el) {
+            function open(ev) {
+                if (ev) ev.preventDefault();
+                var i = parseInt(el.getAttribute('data-gallery-index'), 10);
+                if (!isNaN(i)) window.openLightbox(i);
+            }
+            el.addEventListener('click', open);
+            el.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    open(e);
+                }
+            });
+        });
+        grid.querySelectorAll('img.gallery-thumb').forEach(function (imgEl) {
+            function markLoaded() { imgEl.classList.add('is-loaded'); }
+            if (imgEl.complete && imgEl.naturalWidth > 0) markLoaded();
+            else imgEl.addEventListener('load', markLoaded, { once: true });
+            imgEl.addEventListener('error', markLoaded, { once: true });
+        });
+    }
+
+    var lb = document.getElementById('lightbox');
+    if (lb) {
+        lb.addEventListener('click', function (e) {
+            if (e.target.closest('.lightbox-stage')) return;
+            if (e.target.closest('.lightbox-caption')) return;
+            if (e.target.closest('.lightbox-nav')) return;
+            if (e.target.closest('.lightbox-close')) return;
+            window.closeLightbox();
+        });
+    }
+
+    document.addEventListener('keydown', function (e) {
+        var lbEl = document.getElementById('lightbox');
+        if (!lbEl || !lbEl.classList.contains('open')) return;
+        if (e.key === 'Escape') window.closeLightbox();
+        if (e.key === 'ArrowLeft') window.galleryStep(-1);
+        if (e.key === 'ArrowRight') window.galleryStep(1);
+    });
+})();
+
+document.addEventListener('DOMContentLoaded', function () {
+    var scrollpos = localStorage.getItem('galleryScroll');
+    if (scrollpos) {
+        window.scrollTo(0, parseInt(scrollpos, 10));
+        localStorage.removeItem('galleryScroll');
+    }
 });
-
-// Prevent lightbox close when clicking the image
-document.getElementById('lightbox-img').addEventListener('click', (e) => e.stopPropagation());
-
-// Restore scroll position after delete
-document.addEventListener("DOMContentLoaded", function() {
-    const scrollpos = localStorage.getItem('galleryScroll');
-    if (scrollpos) { window.scrollTo(0, parseInt(scrollpos)); localStorage.removeItem('galleryScroll'); }
-});
-document.querySelectorAll('.gallery-delete-btn').forEach(btn => {
-    btn.addEventListener('click', () => localStorage.setItem('galleryScroll', window.scrollY));
+document.querySelectorAll('.gallery-delete-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        localStorage.setItem('galleryScroll', window.scrollY);
+    });
 });
 </script>
+
+</body>
+</html>
