@@ -1,50 +1,75 @@
-<div class="footer">
-    <div></div>
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <!-- Brand -->
+            <div class="footer-brand">
+                <img src="/img/icons/logo.webp" alt="Dynamic Decks logo" loading="lazy" decoding="async" width="200" height="56">
+                <p>Family owned and operated, Dynamic Decks has been building beautiful outdoor living spaces for Spokane families since 1999. Quality craftsmanship, backed by a 1-year workmanship warranty.</p>
+                <div class="footer-social">
+                    <a href="https://www.instagram.com/dynamicdecks/" target="_blank" aria-label="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
+                    <a href="https://www.facebook.com/dynamicdeck" target="_blank" aria-label="Facebook"><ion-icon name="logo-facebook"></ion-icon></a>
+                    <a href="https://www.youtube.com/@DynamicDecks" target="_blank" aria-label="YouTube"><ion-icon name="logo-youtube"></ion-icon></a>
+                    <a href="https://www.pinterest.com/DynamicDecks/" target="_blank" aria-label="Pinterest"><ion-icon name="logo-pinterest"></ion-icon></a>
+                </div>
+            </div>
 
+            <!-- Services -->
+            <div class="footer-col">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="/decks">Custom Decks</a></li>
+                    <li><a href="/pergolas">Pergolas</a></li>
+                    <li><a href="/covers">Covers &amp; Awnings</a></li>
+                    <li><a href="/construction">Specialty Projects</a></li>
+                    <li><a href="/gallery">Project Gallery</a></li>
+                </ul>
+            </div>
 
-    <div>
-        <img src="/img/icons/logo.webp" alt="Dynamic Decks logo" style="width: 100%;">
-        <br>
-        <br>
-        <p>
-            Family owned and operated, we have 25 years of experience building decks for Spokane families. Ask about our 1-year workmanship warranty!
-        </p>
+            <!-- Company -->
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                    <li><a href="/career">Careers</a></li>
+                    <li><a href="/privacy-policy">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <div class="footer-contact-item">
+                    <ion-icon name="location-outline"></ion-icon>
+                    <span>1720 E Houston Ave<br>Spokane, WA 99217</span>
+                </div>
+                <div class="footer-contact-item">
+                    <ion-icon name="call-outline"></ion-icon>
+                    <span><a href="tel:5094643325">(509) 464-3325</a></span>
+                </div>
+                <div class="footer-contact-item">
+                    <ion-icon name="mail-outline"></ion-icon>
+                    <span><a href="mailto:decksinbox@gmail.com">decksinbox@gmail.com</a></span>
+                </div>
+                <a href="/career" class="footer-career-btn">
+                    <ion-icon name="briefcase-outline"></ion-icon>
+                    Career Opportunities
+                </a>
+            </div>
+        </div>
     </div>
-    <div>
-        <br>
-        <b>Dynamic Decks</b>
-        <br>
-        <br>
-        1720 E Houston Ave, Spokane, WA 99217
-        <br>
-        Phone: <a href="tel:5094643325">(509) 464-3325</a>
-        <br>
-        <button class="quote-button" onclick="window.location.href='/career';"><b>CAREER OPPORTUNITIES</b></button>
+
+    <div class="footer-bottom">
+        <div class="container" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div class="footer-bottom-left">
+                &copy; <%= new Date().getFullYear() %> Dynamic Decks, Inc. &nbsp;|&nbsp;
+                <a href="/privacy-policy">Privacy Policy</a> &nbsp;|&nbsp;
+                Licensed &amp; Insured in Washington State
+            </div>
+            <div class="footer-bottom-right">
+                <a href="/request">Admin</a>
+            </div>
+        </div>
     </div>
-    <div>
-
-    </div>
-
-    <div></div>
-</div>
-<br>
-
-<hr>
-
-<br>
-
-<div class="footer">
-    <div></div>
-
-    <div>
-        <a href="/">© <%= new Date().getFullYear() %> Dynamic Decks</a>
-    </div>
-
-    <div></div>
-
-    <div style="text-align: right;">
-        <a href="/request">Admin Console</a>
-    </div>
-
-</div>
-<br>
+</footer>

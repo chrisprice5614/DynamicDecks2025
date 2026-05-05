@@ -1,221 +1,347 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <% const headUrl = "https://www.dynamicdecksinc.com/" %>
-    <% const headDescription = "Dynamic Decks builds durable, custom outdoor decks, pergolas, and covers with premium materials for lasting beauty and year-round outdoor living enjoyment." %>
-    <% const headTitle = "Dynamic Decks - Quality Decks Since 1999" %>
-    
-    <!-- Primary Meta Tags -->
+    <% const headDescription = "Dynamic Decks builds durable, custom outdoor decks, pergolas, and covers for Spokane families. Premium materials, expert craftsmanship, and a 1-year workmanship warranty since 1999." %>
+    <% const headTitle = "Dynamic Decks - Spokane's Premier Deck Builder Since 1999" %>
+
     <title><%= headTitle %></title>
     <meta name="title" content="<%= headTitle %>">
     <meta name="description" content="<%= headDescription %>">
-    <meta name="author" content="Dynamic Decks">
-    <meta name="language" content="English">
-
-    <meta name="DC.title" content="Dynamic Decks" />
-    <meta name="geo.region" content="US-WA" />
-    <meta name="geo.placename" content="Spokane" />
-    <meta name="geo.position" content="47.71653;-117.383242" />
-    <meta name="ICBM" content="47.71653, -117.383242" />
-    <meta name = "keywords" content ="decks, washington decks, deck builder, deck builder spokane, spokane decks">
-
-    <!-- Canonical URL -->
+    <meta name="keywords" content="deck builder spokane, spokane decks, custom decks washington, pergola builder spokane, deck contractor spokane wa">
     <link rel="canonical" href="<%= headUrl %>">
 
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="<%= headUrl %>">
     <meta property="og:title" content="<%= headTitle %>">
     <meta property="og:description" content="<%= headDescription %>">
-    <meta property="og:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
+    <meta property="og:image" content="<%= headUrl %>img/icons/logo.webp">
     <meta property="og:site_name" content="Dynamic Decks">
     <meta property="og:locale" content="en_US">
 
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="<%= headUrl %>">
     <meta name="twitter:title" content="<%= headTitle %>">
     <meta name="twitter:description" content="<%= headDescription %>">
-    <meta name="twitter:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
+    <meta name="theme-color" content="#22B8F5">
 
-    <!-- Additional SEO and Social Tags -->
-    <meta name="theme-color" content="#317EFB">
-
-    <!-- Structured Data JSON-LD example -->
     <script type="application/ld+json">
     {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Dynamic Decks",
-    "url": "https://www.dynamicdecksinc.com",
-    "logo": "<%= headUrl %>/img/icons/logo.webp",
-    "sameAs": [
-        "https://www.facebook.com/dynamicdeck",
-        "https://twitter.com/yourhandle",
-        "https://www.instagram.com/dynamicdecks"
-    ]
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Dynamic Decks",
+        "url": "https://www.dynamicdecksinc.com",
+        "logo": "https://www.dynamicdecksinc.com/img/icons/logo.webp",
+        "telephone": "+1-509-464-3325",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "1720 E Houston Ave",
+            "addressLocality": "Spokane",
+            "addressRegion": "WA",
+            "postalCode": "99217",
+            "addressCountry": "US"
+        },
+        "geo": { "@type": "GeoCoordinates", "latitude": 47.71653, "longitude": -117.383242 },
+        "openingHours": "Mo-Fr 08:00-17:00",
+        "priceRange": "$$",
+        "sameAs": [
+            "https://www.facebook.com/dynamicdeck",
+            "https://www.instagram.com/dynamicdecks"
+        ]
     }
     </script>
-
-
 </head>
 <%- include("includes/sticky") %>
-<header>
-    
-    <%- include("includes/header") %>
-</header>
+<header><%- include("includes/header") %></header>
+
 <body>
-    <div style="background-image: url('<%= pageData.hero %>'); background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;">
 
-
-
-        <div style=" text-align: left;color: #fff; font-family: 'Montserrat'; background-color: rgba(0, 0, 0, 0.5);" class="home-header">
-            
-            <div>
-                
-                <h1 class="title" style="text-shadow: 0px 0px 16px #000;">Experience the Dynamic Difference</h1>
-                <p style="font-size: x-large; text-shadow: 0px 0px 16px #000;">Designing and building beautiful decks since 1999</p>
-                <br>
-                <div class="hidden-mobile">
-                    <a href="/gallery"><button style="font-size: xx-large;">Check Out Our Gallery</button></a>
-                </div>
-                <div class="unhidden-mobile">
-                    <a href="/contact"><button style="font-size: large;">Request a Free Quote</button></a>
-                </div>
+<!-- HERO -->
+<section class="hero" style="background-image: url('<%= pageData.hero %>'); min-height: 92vh;">
+    <div class="hero-content">
+        <div class="hero-left">
+            <div class="hero-badge">
+                <ion-icon name="star-outline"></ion-icon>
+                Spokane's Trusted Deck Builder Since 1999
             </div>
-            <div style="padding: 0 64px;" class="hidden-mobile">
-                <form action="/contact" method="POST" class = "contact-form" name="FormName">
-                    <h2>Request a free estimate</h2>
-                    <br>
-                    <label>
-                        Name:
-                        <input type="text" name="name" style="width: 100%" placeholder="e.g. John Doe" required>
-                    </label>
-                    <label>
-                        Phone number:
-                        <input id="phoneNumber" type="tel" name="phone" style="width: 100%" maxlength="16" placeholder="e.g. (509) 555 - 1234" required>
-                    </label>
-                    <label>
-                        Address:
-                        <input  id="searchTextField"type="text" name="address" required>
-                    </label>
-                    <label>
-                        Email:
-                        <input type="email" name="email" required placeholder="e.g. jdoe555@gmail.com">
-                    </label>
-                    <label>
-                        Message:
-                        <textarea name="message" placeholder="Tell us about the project"></textarea>
-                    </label>
+            <h1 class="hero-title">
+                Experience the<br><span>Dynamic Difference</span>
+            </h1>
+            <p class="hero-sub">Custom decks, pergolas, and outdoor living spaces built with premium materials and expert craftsmanship, backed by a 1-year workmanship warranty.</p>
+            <div class="hero-actions">
+                <a href="/contact" class="btn btn-primary btn-lg">
+                    <ion-icon name="document-text-outline"></ion-icon>
+                    Get a Free Quote
+                </a>
+                <a href="/gallery" class="btn btn-secondary btn-lg">
+                    <ion-icon name="images-outline"></ion-icon>
+                    View Our Work
+                </a>
+            </div>
+            <div class="hero-made-usa">
+                <img src="/img/ui/usa.webp" alt="Made in the USA" width="280" height="135" loading="lazy" decoding="async" fetchpriority="low">
+            </div>
+        </div>
 
-                    <br>
-                    <div class="g-recaptcha" data-sitekey="6Lchm2ErAAAAAGGXkJ9ane8BFngVnsa8tXF_PofO"></div>
-                    <br>
-
-                    <button onclick="gtag_report_conversion(url);" type="submit" class="galleryButton" style="padding-top: 8px; padding-bottom: 8px; padding-left: 12px; padding-right: 12px;"><b>Send</b></button>
+        <div class="hidden-mobile">
+            <div class="contact-form" style="background: rgba(255,255,255,0.97);">
+                <h2 style="margin-bottom: 4px; font-size: 22px;">Request a Free Estimate</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">No obligation. We'll get back to you fast.</p>
+                <form action="/contact" method="POST" name="HomeForm">
+                    <label>Name</label>
+                    <input type="text" name="name" placeholder="John Doe" required>
+                    <label>Phone Number</label>
+                    <input id="phoneNumberHome" type="tel" name="phone" maxlength="16" placeholder="(509) 555-1234" required>
+                    <label>Address</label>
+                    <input type="text" name="address" placeholder="Your project address" required>
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="you@example.com" required>
+                    <label>Tell Us About Your Project</label>
+                    <textarea name="message" placeholder="Describe what you have in mind..." style="min-height: 80px;"></textarea>
+                    <div class="g-recaptcha" data-sitekey="6Lchm2ErAAAAAGGXkJ9ane8BFngVnsa8tXF_PofO" style="margin: 14px 0;"></div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; font-size:15px;">
+                        <ion-icon name="send-outline"></ion-icon>
+                        Send My Request
+                    </button>
                 </form>
-                <br>
-                All your information is stored safely. Questions about your data? Check our <a href="/privacy-policy" target="_blank">Privacy Policy</a>
-                <br>
-                <br>
-
-                
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 12px; text-align:center;">
+                    Your info is safe. <a href="/privacy-policy" style="color: var(--brand-blue);">Privacy Policy</a>
+                </p>
             </div>
         </div>
     </div>
-    <main>
-        <%- include("includes/content") %>
-    </main>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-number"><span class="number-animate" data-val="25">25</span><span class="stat-suffix">+</span></span>
+            <div class="stat-label">Years of Experience</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number"><span class="number-animate" data-val="1000">1000</span><span class="stat-suffix">+</span></span>
+            <div class="stat-label">Projects Completed</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number"><span class="number-animate" data-val="5">5</span></span>
+            <div class="stat-label">Star Rated in Spokane</div>
+        </div>
+    </div>
+</div>
+
+<!-- SERVICES -->
+<section class="section section-warm">
+    <div class="container">
+        <p class="text-accent text-center" style="font-weight:700; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">What We Build</p>
+        <h2 class="section-title">Custom Outdoor Living Spaces</h2>
+        <div class="section-accent-line"></div>
+        <p class="section-sub">From classic wood decks to modern composite systems, pergolas, covers, and beyond, we handle it all with exceptional quality.</p>
+        <div class="service-grid reveal">
+            <a href="/decks" class="service-card">
+                <div class="service-card-img-wrap">
+                    <img src="/img/ui/wood-light.webp" alt="" class="service-card-img" loading="lazy" decoding="async" width="400" height="300">
+                </div>
+                <div class="service-card-body">
+                    <div class="service-card-title">Custom Decks</div>
+                    <div class="service-card-desc">Pressure-treated wood, composite, and premium TimberTech® decking systems tailored to your home.</div>
+                    <div class="service-card-arrow">Learn More <ion-icon name="arrow-forward-outline"></ion-icon></div>
+                </div>
+            </a>
+            <a href="/pergolas" class="service-card">
+                <div class="service-card-img-wrap">
+                    <img src="/img/ui/wood-light.webp" alt="" class="service-card-img" loading="lazy" decoding="async" width="400" height="300">
+                </div>
+                <div class="service-card-body">
+                    <div class="service-card-title">Pergolas</div>
+                    <div class="service-card-desc">Beautiful open-lattice pergolas that add shade, structure, and style to your outdoor space.</div>
+                    <div class="service-card-arrow">Learn More <ion-icon name="arrow-forward-outline"></ion-icon></div>
+                </div>
+            </a>
+            <a href="/covers" class="service-card">
+                <div class="service-card-img-wrap">
+                    <img src="/img/ui/wood-light.webp" alt="" class="service-card-img" loading="lazy" decoding="async" width="400" height="300">
+                </div>
+                <div class="service-card-body">
+                    <div class="service-card-title">Covers &amp; Awnings</div>
+                    <div class="service-card-desc">Solid and insulated patio covers designed to extend your outdoor season in any weather.</div>
+                    <div class="service-card-arrow">Learn More <ion-icon name="arrow-forward-outline"></ion-icon></div>
+                </div>
+            </a>
+            <a href="/construction" class="service-card">
+                <div class="service-card-img-wrap">
+                    <img src="/img/ui/wood-light.webp" alt="" class="service-card-img" loading="lazy" decoding="async" width="400" height="300">
+                </div>
+                <div class="service-card-body">
+                    <div class="service-card-title">Specialty Projects</div>
+                    <div class="service-card-desc">Privacy walls, custom railings, stairs, lighting, and one-of-a-kind outdoor structures.</div>
+                    <div class="service-card-arrow">Learn More <ion-icon name="arrow-forward-outline"></ion-icon></div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CMS CONTENT -->
+<section class="section section-white">
+    <div class="container">
+        <div class="page-content" style="padding: 0;">
+            <%- pageData.content %>
+        </div>
+    </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="section section-warm">
+    <div class="container">
+        <p class="text-accent text-center" style="font-weight:700; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">Why Dynamic Decks</p>
+        <h2 class="section-title">Built Different. Built Better.</h2>
+        <div class="section-accent-line"></div>
+        <div class="feature-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap"><ion-icon name="ribbon-outline" aria-hidden="true"></ion-icon></div>
+                <div class="feature-title">25+ Years of Excellence</div>
+                <div class="feature-desc">Since 1999, we've been building outdoor living spaces that Spokane families love and trust. Our experience shows in every detail.</div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap"><ion-icon name="shield-checkmark-outline" aria-hidden="true"></ion-icon></div>
+                <div class="feature-title">1-Year Workmanship Warranty</div>
+                <div class="feature-desc">We stand behind every project. Our warranty gives you complete peace of mind long after the last board is laid.</div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap"><ion-icon name="leaf-outline" aria-hidden="true"></ion-icon></div>
+                <div class="feature-title">Premium Materials</div>
+                <div class="feature-desc">We use only top-grade materials including TimberTech® composite decking systems engineered for lasting beauty and performance.</div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap"><ion-icon name="people-outline" aria-hidden="true"></ion-icon></div>
+                <div class="feature-title">Family Owned &amp; Operated</div>
+                <div class="feature-desc">We treat every home like our own. As a family business, personal service and genuine care are built into everything we do.</div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap"><ion-icon name="color-wand-outline" aria-hidden="true"></ion-icon></div>
+                <div class="feature-title">Custom Design</div>
+                <div class="feature-desc">Every project is designed specifically for your space, style, and budget. No cookie-cutter solutions here.</div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap"><ion-icon name="location-outline" aria-hidden="true"></ion-icon></div>
+                <div class="feature-title">Proudly Local</div>
+                <div class="feature-desc">Based right here in Spokane, WA. We know the climate, the homes, and the community, and we're invested in it.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section section-white">
+    <div class="container">
+        <p class="text-accent text-center" style="font-weight:700; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">Customer Reviews</p>
+        <h2 class="section-title">What Spokane Homeowners Say</h2>
+        <div class="section-accent-line"></div>
+        <div class="reviews-grid">
+            <div class="review-card reveal">
+                <div class="review-stars-row" aria-label="5 out of 5 stars">
+                    <ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon>
+                </div>
+                <p class="review-text">"Dynamic Decks completely transformed our backyard. The craftsmanship is outstanding and the crew was professional from start to finish. Couldn't be happier!"</p>
+                <div class="review-author">Sarah M.</div>
+                <div class="review-source">Google Review, Spokane, WA</div>
+            </div>
+            <div class="review-card reveal">
+                <div class="review-stars-row" aria-label="5 out of 5 stars">
+                    <ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon>
+                </div>
+                <p class="review-text">"We've used Dynamic Decks twice now, once for a deck and once for a pergola. Both times the quality and service were exceptional. They're our go-to for outdoor projects."</p>
+                <div class="review-author">James &amp; Karen L.</div>
+                <div class="review-source">Google Review, Spokane Valley, WA</div>
+            </div>
+            <div class="review-card reveal">
+                <div class="review-stars-row" aria-label="5 out of 5 stars">
+                    <ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon><ion-icon name="star" aria-hidden="true"></ion-icon>
+                </div>
+                <p class="review-text">"Very impressed with the attention to detail and the way they handle every step of the project. The deck came out better than we imagined. Highly recommend!"</p>
+                <div class="review-author">Mike T.</div>
+                <div class="review-source">Google Review, Spokane, WA</div>
+            </div>
+        </div>
+        <div class="text-center" style="margin-top: 36px;">
+            <a href="https://www.google.com/maps/search/Dynamic+Decks+Spokane+WA" target="_blank" class="btn btn-outline">
+                <ion-icon name="star-outline"></ion-icon>
+                See All Google Reviews
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="cta-band section-dark">
+    <div class="container">
+        <h2>Ready to Build Your Dream Outdoor Space?</h2>
+        <p>Get a free, no-obligation estimate from Spokane's most trusted deck builder.</p>
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+            <a href="/contact" class="btn btn-primary btn-lg">
+                <ion-icon name="document-text-outline"></ion-icon>
+                Request a Free Quote
+            </a>
+            <a href="tel:15094643325" class="btn btn-secondary btn-lg">
+                <ion-icon name="call-outline"></ion-icon>
+                Call (509) 464-3325
+            </a>
+        </div>
+    </div>
+</section>
+
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>
 
 <script>
-    //For scrolling elements n stuff
 function reveal() {
-    var reveals = document.querySelectorAll(".reveal");
-    for (var i = 0; i < reveals.length; i++) {
-        var windowHeight = window.innerHeight;
-        var elementTop = reveals[i].getBoundingClientRect().top;
-        var elementVisible = 40;
-        if (elementTop < windowHeight - elementVisible) {
-        reveals[i].classList.add("active");
-        } else {
-        reveals[i].classList.remove("active");
+    document.querySelectorAll(".reveal").forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight - 40) {
+            el.classList.add("active");
         }
-    }
+    });
     numberAnimate();
 }
-
-//animated numbers
 function numberAnimate() {
-    var numberAnimations = document.querySelectorAll(".number-animate");
-    var interval = 300;
-
-    numberAnimations.forEach(( numberAnimation ) => {
-        if(!numberAnimation.classList.contains("active"))
-        {
-            numberAnimation.innerHTML="0";
-        }
-        if((numberAnimation.classList.contains("active"))
-        &&(numberAnimation.innerHTML=="0"))
-        {
-            var startValue = 0;
-            var finalValue = parseInt(numberAnimation.getAttribute("data-val"));
-            var duration = finalValue/interval;
-            var counter = setInterval( function () {
-                startValue += duration;
-                numberAnimation.innerHTML = Math.ceil(startValue);
-                if(startValue>=finalValue)
-                {
-                    numberAnimation.innerHTML = finalValue;
-                    clearInterval(counter);
-                }
-            }, 1);
+    document.querySelectorAll(".number-animate").forEach(el => {
+        if (!el.classList.contains("counted")) {
+            const rect = el.closest('.stat-item') ? el.closest('.stat-item').getBoundingClientRect() : el.getBoundingClientRect();
+            if (rect.top < window.innerHeight - 20) {
+                el.classList.add("counted");
+                const finalValue = parseInt(el.getAttribute("data-val"));
+                const duration = 1200;
+                const stepTime = 16;
+                const steps = duration / stepTime;
+                const increment = finalValue / steps;
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= finalValue) {
+                        el.textContent = finalValue;
+                        clearInterval(timer);
+                    } else {
+                        el.textContent = Math.ceil(current);
+                    }
+                }, stepTime);
+            }
         }
     });
 }
-
 window.addEventListener("scroll", reveal);
-</script>
-<script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const phoneInput = document.getElementById('phoneNumber');
-        
-            phoneInput.addEventListener('input', (e) => {
-                let value = e.target.value;
-        
-                // Remove all non-digit characters
-                value = value.replace(/\D/g, '');
-        
-                // Limit to 10 digits
-                if (value.length > 10) {
-                    value = value.slice(0, 10);
-                }
-        
-                // Format as (XXX) XXX-XXXX
-                if (value.length > 6) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
-                } else if (value.length > 3) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-                } else if (value.length > 0) {
-                    value = `(${value}`;
-                }
-        
-                e.target.value = value;
-            });
+window.addEventListener("load", reveal);
 
-            phoneInput.addEventListener('keypress', (e) => {
-                if (!/\d/.test(e.key)) {
-                    e.preventDefault();
-                }
-            });
-        });
-        </script>
+document.addEventListener('DOMContentLoaded', () => {
+    const phoneInput = document.getElementById('phoneNumberHome');
+    if (!phoneInput) return;
+    phoneInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        if (value.length > 6) value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+        else if (value.length > 3) value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        else if (value.length > 0) value = `(${value}`;
+        e.target.value = value;
+    });
+});
+</script>

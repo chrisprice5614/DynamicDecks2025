@@ -203,6 +203,26 @@ function slugify(title) {
     .replace(/^-+|-+$/g, '');       // trim dashes from start/end
 }
 
+// Add lazy-loading and async decode to content images (faster perceived load, same visual quality)
+function enhanceContentHtml(html) {
+    if (!html || typeof html !== 'string') return html;
+    return html.replace(/<img\s+([^>]+)>/gi, (match, attrs) => {
+        if (/class\s*=\s*["'][^"']*no-lazy/i.test(attrs)) return match;
+        let a = attrs.trim();
+        if (!/\bloading\s*=/i.test(a)) a += ' loading="lazy"';
+        if (!/\bdecoding\s*=/i.test(a)) a += ' decoding="async"';
+        if (!/\bfetchpriority\s*=/i.test(a)) a += ' fetchpriority="low"';
+        return `<img ${a}>`;
+    });
+}
+
+
+// Bot user-agent detection: skip session tracking for crawlers
+const BOT_PATTERN = /bot|crawler|spider|scraper|curl|wget|python|java|libwww|httpclient|Go-http|Baiduspider|YandexBot|SemrushBot|AhrefsBot|MJ12bot|DotBot|facebookexternalhit|Googlebot|Bingbot|Slurp|DuckDuckBot|archive\.org_bot|ia_archiver|Sogou|Exabot|Alexa|Voila|uptimerobot|pingdom|monitor/i;
+function isBot(req) {
+    const ua = req.headers['user-agent'] || '';
+    return BOT_PATTERN.test(ua);
+}
 
 //Middleware
 app.use(function (req, res, next) {
@@ -222,46 +242,48 @@ app.use(function (req, res, next) {
 
     res.locals.user = req.user;
 
-    try {
-        const decoded = jwt.verify(req.cookies.session, JWT_SECRET)
-        req.session = decoded
-    } catch(err) {
-        let salt = bcrypt.genSaltSync(10)
-        let sessionId = bcrypt.hashSync(ip + Date.now().toString(), salt)
-        req.session = {exp: Math.floor(Date.now() / 1000) + (60*60*0.5), sessionId, visits: [], converted: false};
-        const ourTokenValue = jwt.sign(req.session, JWT_SECRET)
-        
+    if (!isBot(req)) {
+        try {
+            const decoded = jwt.verify(req.cookies.session, JWT_SECRET)
+            req.session = decoded
+        } catch(err) {
+            let salt = bcrypt.genSaltSync(10)
+            let sessionId = bcrypt.hashSync(ip + Date.now().toString(), salt)
+            req.session = {exp: Math.floor(Date.now() / 1000) + (60*60*0.5), sessionId, visits: [], converted: false};
+            const ourTokenValue = jwt.sign(req.session, JWT_SECRET)
 
-        res.cookie("session",ourTokenValue, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "strict",
-            maxAge: 1000 * 60 * 60 * 0.5
-        }) //name, string to remember,
-
-        const sessionStatement = db.prepare("INSERT into sessions (sessionId, date) VALUES (? , ?)")
-        sessionStatement.run(req.session.sessionId, Date.now())
-    }
-
-
-    // Record visits robustly (cap at 50 to avoid oversized cookies)
-    try {
-        if (!Array.isArray(req.session.visits)) req.session.visits = [];
-        if (req.session.visits.length < 50) {
-            req.session.visits.push({ url: req.originalUrl, time: Date.now() });
-            const sessionStatement = db.prepare("UPDATE sessions set visits = ? WHERE sessionId = ?");
-            sessionStatement.run(JSON.stringify(req.session.visits), req.session.sessionId);
-            req.session = { exp: Math.floor(Date.now() / 1000) + (60 * 60 * 0.5), sessionId: req.session.sessionId, visits: req.session.visits, converted: req.session.converted };
-            const ourTokenValue = jwt.sign(req.session, JWT_SECRET);
-            res.cookie("session", ourTokenValue, {
+            res.cookie("session",ourTokenValue, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
                 maxAge: 1000 * 60 * 60 * 0.5
-            });
+            })
+
+            const sessionStatement = db.prepare("INSERT into sessions (sessionId, date) VALUES (? , ?)")
+            sessionStatement.run(req.session.sessionId, Date.now())
         }
-    } catch (e) {
-        // non-fatal; continue
+
+        // Record visits robustly (cap at 50 to avoid oversized cookies)
+        try {
+            if (req.session && !Array.isArray(req.session.visits)) req.session.visits = [];
+            if (req.session && req.session.visits.length < 50) {
+                req.session.visits.push({ url: req.originalUrl, time: Date.now() });
+                const sessionStatement = db.prepare("UPDATE sessions set visits = ? WHERE sessionId = ?");
+                sessionStatement.run(JSON.stringify(req.session.visits), req.session.sessionId);
+                req.session = { exp: Math.floor(Date.now() / 1000) + (60 * 60 * 0.5), sessionId: req.session.sessionId, visits: req.session.visits, converted: req.session.converted };
+                const ourTokenValue = jwt.sign(req.session, JWT_SECRET);
+                res.cookie("session", ourTokenValue, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "strict",
+                    maxAge: 1000 * 60 * 60 * 0.5
+                });
+            }
+        } catch (e) {
+            // non-fatal; continue
+        }
+    } else {
+        req.session = { visits: [], converted: false, sessionId: null };
     }
 
     //console.log(req.session)
@@ -696,6 +718,13 @@ app.get("/blog/:slug", (req,res) => {
 
     if (!pageData) return res.status(404).render("404")
 
+    let html = pageData.content || '';
+    const trimmed = html.trim();
+    if (trimmed && !trimmed.startsWith('<')) {
+        html = marked.parse(html);
+    }
+    pageData.content = enhanceContentHtml(html);
+
     return res.render("page", {pageData})
 })
 
@@ -740,7 +769,7 @@ app.get("/", (req, res) => {
     const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
     const pageData = contentStatement.get("home");
 
-    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+    pageData.content = enhanceContentHtml(marked.parse(pageData.content)); // Convert Markdown to HTML
 
     return res.render("homepage", {pageData});
 })
@@ -756,7 +785,7 @@ app.get("/decks", (req, res) => {
     const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
     const pageData = contentStatement.get("decks");
 
-    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+    pageData.content = enhanceContentHtml(marked.parse(pageData.content)); // Convert Markdown to HTML
 
     return res.render("page", {pageData});
 
@@ -768,7 +797,7 @@ app.get("/pergolas", (req, res) => {
     const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
     const pageData = contentStatement.get("pergolas");
 
-    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+    pageData.content = enhanceContentHtml(marked.parse(pageData.content)); // Convert Markdown to HTML
 
     return res.render("page", {pageData});
 })
@@ -937,7 +966,7 @@ app.get("/covers", (req, res) => {
     const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
     const pageData = contentStatement.get("covers");
 
-    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+    pageData.content = enhanceContentHtml(marked.parse(pageData.content)); // Convert Markdown to HTML
 
     return res.render("page", {pageData});
 })
@@ -948,7 +977,7 @@ app.get("/construction", (req, res) => {
     const contentStatement = db.prepare("SELECT * FROM pages WHERE page = ?");
     const pageData = contentStatement.get("construction");
 
-    pageData.content = marked.parse(pageData.content); // Convert Markdown to HTML
+    pageData.content = enhanceContentHtml(marked.parse(pageData.content)); // Convert Markdown to HTML
 
     return res.render("page", {pageData});
 })
@@ -1370,7 +1399,7 @@ app.post("/career", (req,res) => {
     </html>
     `
 
-    sendEmail("chrisprice5614@gmail.com","Job Application",html)
+    sendEmail("decksinbox@gmail.com","Job Application",html)
 
     return res.render("application")
 
@@ -1608,7 +1637,7 @@ app.get("/login", (req,res) => {
             res.cookie("login",ourTokenValue, {
                 httpOnly: true,
                 secure: true,
-                sameSite: "strict",
+                sameSite: "lax",
                 maxAge: 1000 * 60 * 60 * 4
             }) //name, string to remember,
         }
@@ -1616,7 +1645,7 @@ app.get("/login", (req,res) => {
         return res.redirect("/")
     }
 
-    return res.redirect("/")
+    return res.redirect("/console")
 })
 
 app.use((req, res, next) => {

@@ -1,31 +1,31 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
-    <title>Dynamic Decks, Inc</title>
+    <title>404: Page Not Found | Dynamic Decks</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#22B8F5">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    <%- include("includes/header") %>
-</header>
+<header><%- include("includes/header") %></header>
+
 <body>
-    <main>
-        <div class="content">
-            <div></div>
-
-            <div>
-                <br>
-                <h1 style="text-align: center;">404 - Not Found</h1>
-                <br>
-                <p>The URL in the address bar does not exist. Please double check spelling in the address bar.</p>
-                <br>
-            </div>
-
-            <div></div>
+<div class="success-page">
+    <div>
+        <div class="success-icon-wrap"><ion-icon name="construct-outline" aria-hidden="true"></ion-icon></div>
+        <h1>404: Page Not Found</h1>
+        <p>Looks like this page is still under construction! The URL you're looking for doesn't exist.</p>
+        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+            <a href="/" class="btn btn-primary">
+                <ion-icon name="home-outline"></ion-icon>
+                Go Home
+            </a>
+            <a href="/contact" class="btn btn-outline">
+                <ion-icon name="document-text-outline"></ion-icon>
+                Contact Us
+            </a>
         </div>
-    </main>
+    </div>
+</div>
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>

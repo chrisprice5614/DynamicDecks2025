@@ -1,53 +1,82 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
-    <title>Dynamic Decks, Inc</title>
-
-    <style>
-    .card {
-        cursor: pointer;
-        transition: all 0.3s ease;
-        
-        border-radius: 16px;
-        box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
-        text-shadow: 0px 0px 8px #000;
-    }
-
-    .card:hover {
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-    }
-    </style>
+    <title>Dynamic Decks Blog | Decking Tips & Ideas | Spokane, WA</title>
+    <meta name="description" content="Read the Dynamic Decks blog for expert tips, design ideas, and inspiration for your next deck, pergola, or outdoor living project in Spokane, WA.">
+    <meta name="theme-color" content="#22B8F5">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    <%- include("includes/header") %>
-</header>
+<header><%- include("includes/header") %></header>
+
 <body>
-    <main>
-        <div class="content">
-            <div></div>
 
-            <div>
-                <br>
-                <h1 style="text-align: center; color: #fff; text-shadow: 0 0 12px rgba(0, 0, 0, 1);">Blog</h1>
-                <br>
-                <% blogs.forEach( blog => { %>
-                    <div class="card" onclick="location.href='/blog/<%= blog.slug %>'" style="background-image: url('<%= blog.hero %>'); background-position: center; background-size: cover; background-repeat: no-repeat;">
-                        <div style="background-color: rgba(0, 0, 0, 0.3); padding: 16px 32px; border-radius: 16px;">
-                            <h1><a href="/blog/<%= blog.slug %>" style="color: #fff; font-weight: 600; text-decoration: none; font-size: x-large;"><%= blog.page %></a></h1>
+<!-- PAGE HERO -->
+<div class="page-hero" style="background-image: url('/img/ui/wood-bckg.webp'); min-height: 240px;">
+    <div class="page-hero-content">
+        <h1>Decking Blog</h1>
+        <p>Tips, inspiration, and ideas for your outdoor living space</p>
+    </div>
+</div>
+
+<!-- BLOG SECTION -->
+<section class="section section-warm">
+    <div class="container">
+        <% if(blogs.length > 0) { %>
+        <div class="blog-grid">
+            <% blogs.forEach(blog => { %>
+                <% if(blog.active || user) { %>
+                <a href="/blog/<%= blog.slug %>" class="blog-card">
+                    <div class="blog-card-img-wrap">
+                        <% if(blog.hero) { %>
+                        <img src="<%= blog.hero %>" alt="<%= blog.page %>" class="blog-card-img" loading="lazy" decoding="async">
+                        <% } else { %>
+                        <div style="width:100%; aspect-ratio:16/9; background: linear-gradient(135deg, #1a0f06 0%, #3d2c1e 100%); display:flex; align-items:center; justify-content:center;">
+                            <ion-icon name="hammer-outline" style="font-size:48px; color:rgba(255,255,255,0.3);"></ion-icon>
                         </div>
+                        <% } %>
                     </div>
-                    <br>
-                <% }) %>
-                <br>
-            </div>
-
-            <div></div>
+                    <div class="blog-card-body">
+                        <% if(!blog.active) { %>
+                        <span style="font-size: 11px; background: var(--brand-yellow); color: #1a1508; padding: 2px 8px; border-radius: 3px; font-weight: 700; letter-spacing: 0.05em; display: inline-block; margin-bottom: 8px;">DRAFT</span>
+                        <% } %>
+                        <div class="blog-card-title"><%= blog.page %></div>
+                        <div class="blog-card-arrow">Read Article <ion-icon name="arrow-forward-outline"></ion-icon></div>
+                    </div>
+                </a>
+                <% } %>
+            <% }) %>
         </div>
-    </main>
+        <% } else { %>
+        <div style="text-align:center; padding: 80px 20px; color: var(--text-muted);">
+            <div class="success-icon-wrap" style="margin: 0 auto 16px; width: 64px; height: 64px;"><ion-icon name="newspaper-outline" aria-hidden="true"></ion-icon></div>
+            <h3>No blog posts yet</h3>
+            <p style="margin-top: 8px;">Check back soon for expert decking tips and inspiration!</p>
+        </div>
+        <% } %>
+
+        <% if(user) { %>
+        <div style="margin-top: 32px; text-align: center;">
+            <a href="/add-blog" class="btn btn-primary">
+                <ion-icon name="add-outline"></ion-icon>
+                Add New Blog Post
+            </a>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band section-dark">
+    <div class="container">
+        <h2>Ready to Start Your Project?</h2>
+        <p>Don't just read about it. Let's build your dream outdoor space.</p>
+        <a href="/contact" class="btn btn-primary btn-lg">
+            <ion-icon name="document-text-outline"></ion-icon>
+            Get a Free Quote
+        </a>
+    </div>
+</section>
+
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>

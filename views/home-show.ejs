@@ -1,148 +1,114 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <% const headUrl = "https://www.dynamicdecksinc.com/home-show" %>
-    <% const headDescription = "Dynamic Decks builds durable, custom outdoor decks, pergolas, and covers with premium materials for lasting beauty and year-round outdoor living enjoyment." %>
-    <% const headTitle = "Dynamic Decks - Home Show" %>
-    
-    <!-- Primary Meta Tags -->
+    <% const headDescription = "Visit Dynamic Decks at the Spokane Home & Garden Show. Talk to our experts about decks, pergolas, and outdoor living spaces." %>
+    <% const headTitle = "Dynamic Decks | Spokane Home Show" %>
+
     <title><%= headTitle %></title>
     <meta name="title" content="<%= headTitle %>">
     <meta name="description" content="<%= headDescription %>">
-    <meta name="author" content="Dynamic Decks">
-    <meta name="language" content="English">
-
-    <meta name="DC.title" content="Dynamic Decks" />
-    <meta name="geo.region" content="US-WA" />
-    <meta name="geo.placename" content="Spokane" />
-    <meta name="geo.position" content="47.71653;-117.383242" />
-    <meta name="ICBM" content="47.71653, -117.383242" />
-    <meta name = "keywords" content ="decks, washington decks, deck builder, deck builder spokane, spokane decks">
-
-    <!-- Canonical URL -->
     <link rel="canonical" href="<%= headUrl %>">
-
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="<%= headUrl %>">
     <meta property="og:title" content="<%= headTitle %>">
     <meta property="og:description" content="<%= headDescription %>">
-    <meta property="og:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
     <meta property="og:site_name" content="Dynamic Decks">
-    <meta property="og:locale" content="en_US">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="<%= headUrl %>">
-    <meta name="twitter:title" content="<%= headTitle %>">
-    <meta name="twitter:description" content="<%= headDescription %>">
-    <meta name="twitter:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
-
-    <!-- Additional SEO and Social Tags -->
-    <meta name="theme-color" content="#317EFB">
+    <meta name="theme-color" content="#22B8F5">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    
-    <%- include("includes/header") %>
-</header>
-<body style="background-image: url(/img/ui/wood-light.webp);">
-    <main>
-        <div class="content">
-            <div></div>
-            
+<header><%- include("includes/header") %></header>
 
-            <div>
+<body>
 
-                <div style="margin-top: 16px;">
-                        <div style="text-align: center;">
-                            <a href="https://spokanehomeshows.com/spokane-home-garden-show/" target="_blank" >
-                                <img src="/img/ui/homeAndGardenSpokane.webp" alt="Spokane Home and Garden Show April 2026 graphic" style="width: 90%; max-width: 1200px; box-shadow: 0px 0px 16px #000;">
-                            </a>
-                        </div>
+<div class="page-hero" style="background-image: url('/img/ui/wood-bckg.webp'); min-height: 220px;">
+    <div class="page-hero-content">
+        <h1>Spokane Home Show</h1>
+        <p>Come find us at the Spokane Convention Center!</p>
+    </div>
+</div>
+
+<section class="section section-warm">
+    <div class="container">
+        <div class="contact-wrap">
+            <div class="contact-info">
+                <div style="text-align: center; margin-bottom: 28px;">
+                    <a href="https://spokanehomeshows.com/spokane-home-garden-show/" target="_blank">
+                        <img src="/img/ui/homeAndGardenSpokane.webp" alt="Spokane Home and Garden Show" style="width: 100%; max-width: 500px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+                    </a>
                 </div>
-                <br>
-                <p style="color: white; text-shadow: 1px 1px 8px #000; font-weight: 600; font-size: large;">Come out and see us at the <b>Spokane Home & Garden Show</b> on April 10th - 12th at the Spokane Convention Center in Spokane, WA. We'll have our experts on hand to talk to you about turning your ideas into realities with decks, pergolas, and more.
-                </p>
-                <br>
-                <h1 style="text-align: center; color: white; text-shadow: 1px 1px 4px #000;" class="title">Contact Us</h1>
-                <br>
-                <br>
-                <form action="/contact" method="POST" class = "contact-form" name="FormName">
-                    <label>
-                        Name:
-                        <input type="text" name="name" style="width: 100%" placeholder="e.g. John Doe" required>
-                    </label>
-                    <label>
-                        Phone number:
-                        <input id="phoneNumber" type="tel" name="phone" style="width: 100%" maxlength="16" placeholder="e.g. (509) 555 - 1234" required>
-                    </label>
-                    <label>
-                        Address:
-                        <input  id="searchTextField"type="text" name="address" required>
-                    </label>
-                    <label>
-                        Email:
-                        <input type="email" name="email" required placeholder="e.g. jdoe555@gmail.com">
-                    </label>
-                    <label>
-                        Message:
-                        <textarea name="message" placeholder="Tell us about the project"></textarea>
-                    </label>
+                <h2>See Us at the Spokane Home &amp; Garden Show</h2>
+                <p>Come out and see us at the <strong>Spokane Home &amp; Garden Show</strong> at the Spokane Convention Center. Our experts will be on hand to answer questions about custom decks, pergolas, covers, and turning your outdoor living ideas into reality.</p>
 
-                    <br>
-                    <div class="g-recaptcha" data-sitekey="6Lchm2ErAAAAAGGXkJ9ane8BFngVnsa8tXF_PofO"></div>
-                    <br>
-
-                    <button onclick="gtag_report_conversion(url);" type="submit" class="galleryButton" style="padding-top: 8px; padding-bottom: 8px; padding-left: 12px; padding-right: 12px;"><b>Send</b></button>
-                </form>
-                <br>
-                All your information is stored safely. Questions about your data? Check our <a href="/privacy-policy" target="_blank">Privacy Policy</a>
-                <br>
+                <div class="contact-detail">
+                    <div class="contact-detail-icon"><ion-icon name="location-outline"></ion-icon></div>
+                    <div class="contact-detail-text">
+                        <h4>Venue</h4>
+                        <p>Spokane Convention Center<br>Spokane, WA</p>
+                    </div>
+                </div>
+                <div class="contact-detail">
+                    <div class="contact-detail-icon"><ion-icon name="call-outline"></ion-icon></div>
+                    <div class="contact-detail-text">
+                        <h4>Questions?</h4>
+                        <p><a href="tel:5094643325">(509) 464-3325</a></p>
+                    </div>
+                </div>
             </div>
 
-            <div></div>
+            <div class="form-card">
+                <h2>Get in Touch</h2>
+                <p class="form-sub">Send us a message and we'll follow up after the show.</p>
+                <form action="/contact" method="POST" name="HomeShowForm">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input id="phoneNumber" type="tel" name="phone" maxlength="16" placeholder="(509) 555-1234" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" name="address" placeholder="Your project address" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea name="message" placeholder="Tell us about your project..."></textarea>
+                    </div>
+                    <div class="g-recaptcha" data-sitekey="6Lchm2ErAAAAAGGXkJ9ane8BFngVnsa8tXF_PofO" style="margin-bottom: 20px;"></div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; font-size:15px; padding:16px;">
+                        <ion-icon name="send-outline"></ion-icon>
+                        Send Message
+                    </button>
+                    <p style="font-size: 12px; color: var(--text-muted); text-align:center; margin-top:12px;">
+                        Your info is private. <a href="/privacy-policy" style="color: var(--accent);">Privacy Policy</a>
+                    </p>
+                </form>
+            </div>
         </div>
-    </main>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const phoneInput = document.getElementById('phoneNumber');
-        
-            phoneInput.addEventListener('input', (e) => {
-                let value = e.target.value;
-        
-                // Remove all non-digit characters
-                value = value.replace(/\D/g, '');
-        
-                // Limit to 10 digits
-                if (value.length > 10) {
-                    value = value.slice(0, 10);
-                }
-        
-                // Format as (XXX) XXX-XXXX
-                if (value.length > 6) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
-                } else if (value.length > 3) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-                } else if (value.length > 0) {
-                    value = `(${value}`;
-                }
-        
-                e.target.value = value;
-            });
+    </div>
+</section>
 
-            phoneInput.addEventListener('keypress', (e) => {
-                if (!/\d/.test(e.key)) {
-                    e.preventDefault();
-                }
-            });
-        });
-        </script>
-        
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const phoneInput = document.getElementById('phoneNumber');
+    if (!phoneInput) return;
+    phoneInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        if (value.length > 6) value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+        else if (value.length > 3) value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        else if (value.length > 0) value = `(${value}`;
+        e.target.value = value;
+    });
+});
+</script>

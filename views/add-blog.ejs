@@ -1,111 +1,104 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <title>Dynamic Decks, Inc</title>
+    <title>Add Blog Post | Dynamic Decks Admin</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0f0a05">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    
-    <%- include("includes/header") %>
-</header>
+<header><%- include("includes/header") %></header>
+
 <body>
-    <main>
-        <h1 style="text-align: center;">
-            Add Blog
-        </h1>
-        <br>
-        <div class="page-content">
-            <form method="POST" action="/add-blog/" enctype="multipart/form-data" class="contact-form">
-                <label for="header">header</label>
-                <input 
-                type="text" 
-                id="header" 
-                name="header" 
-                placeholder="Enter blog header..." 
-                required
-                >
-
-                <!-- Hero Image Upload -->
-                <label for="heroImage">Hero Image</label>
-                <input type="file" id="heroImage" name="heroImage" accept="image/*">
-                <br>
-                <br>
-                <label for="markdown">Content</label>
-                <textarea 
-                id="markdown" 
-                name="content" 
-                placeholder="Write Markdown here..." 
-                required
-                rows="10"
-                ></textarea>
-
-                <!-- Image Upload UI -->
-                <label for="imageUpload">Insert Image</label>
-                <input type="file" id="imageUpload" accept="image/*">
-                <br>
-                <button type="button" onclick="uploadImage()">Upload & Insert</button>
-
-                <br><br>
-
-                <button type="submit">Add Blog</button>
-
-                <br><br>
-
-                
-            </form>
-            <br>
-            <div class="preview" id="preview"></div>
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>New Blog Post</h1>
+            <p>Write and publish a new blog article.</p>
         </div>
-    </main>
-    <script>
-            const textarea = document.getElementById("markdown");
-            const preview = document.getElementById("preview");
 
-            textarea.addEventListener("input", () => {
-                const markdownText = textarea.value;
-                preview.innerHTML = marked.parse(markdownText);
-            });
+        <div class="admin-card">
+            <form method="POST" action="/add-blog" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Post Title</label>
+                    <input type="text" id="header" name="header" placeholder="e.g. Top 5 Deck Materials for Spokane Winters" required>
+                </div>
 
-            // Initialize preview on page load
-            preview.innerHTML = marked.parse(textarea.value);
+                <div class="form-group">
+                    <label>Hero Image (optional)</label>
+                    <input type="file" id="heroImage" name="heroImage" accept="image/*" style="padding: 8px;">
+                </div>
 
-            async function uploadImage() {
-                const fileInput = document.getElementById("imageUpload");
-                const file = fileInput.files[0];
+                <div class="form-group">
+                    <label>Content (HTML or Markdown)</label>
+                    <textarea id="markdown" name="content" placeholder="Write your blog post here..." required rows="20" style="font-family: monospace; font-size: 14px;"></textarea>
+                </div>
 
-                if (!file) return alert("Please select an image");
+                <div class="form-group">
+                    <label>Insert Image into Content</label>
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <input type="file" id="imageUpload" accept="image/*" style="padding: 8px; flex: 1; min-width: 200px;">
+                        <button type="button" onclick="uploadImage()" class="btn btn-dark btn-sm">
+                            <ion-icon name="cloud-upload-outline"></ion-icon>
+                            Upload & Insert
+                        </button>
+                    </div>
+                    <%- include("includes/editor-gallery", { imageSnippetFormat: 'markdown' }) %>
+                </div>
 
-                const formData = new FormData();
-                formData.append("image", file);
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px;">
+                    <button type="submit" class="btn btn-primary">
+                        <ion-icon name="add-circle-outline"></ion-icon>
+                        Publish Post
+                    </button>
+                    <a href="/console" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
 
-                try {
-                    const res = await fetch("/upload-markdown-image", {
-                        method: "POST",
-                        body: formData,
-                    });
-
-                    const data = await res.json();
-                    if (data.error) throw new Error(data.error);
-
-                    // Insert Markdown image syntax into textarea
-                    const markdownInput = document.getElementById("markdown");
-                    const cursor = markdownInput.selectionStart;
-                    const markdownImage = `![Alt text](${data.url})`;
-                    const text = markdownInput.value;
-                    markdownInput.value =
-                        text.substring(0, cursor) + markdownImage + text.substring(cursor);
-
-                    // Update preview after inserting image markdown
-                    preview.innerHTML = marked.parse(markdownInput.value);
-                } catch (err) {
-                    alert("Upload failed: " + err.message);
-                }
-            }
-        </script>
+        <!-- Live Preview -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2>Live Preview</h2>
+            </div>
+            <div id="preview" class="page-content" style="padding: 0; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 24px; min-height: 100px;"></div>
+        </div>
+    </div>
+</div>
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>
+
+<script>
+const textarea = document.getElementById("markdown");
+const preview = document.getElementById("preview");
+
+function updatePreview() {
+    try { preview.innerHTML = marked.parse(textarea.value); }
+    catch(e) { preview.innerHTML = textarea.value; }
+}
+textarea.addEventListener("input", updatePreview);
+updatePreview();
+
+async function uploadImage() {
+    const fileInput = document.getElementById("imageUpload");
+    const file = fileInput.files[0];
+    if (!file) { alert("Please select an image first."); return; }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+        const res = await fetch("/upload-markdown-image", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        const cursor = textarea.selectionStart;
+        const mdImage = `![Image](${data.url})`;
+        textarea.value = textarea.value.substring(0, cursor) + mdImage + textarea.value.substring(cursor);
+        updatePreview();
+    } catch (err) {
+        alert("Upload failed: " + err.message);
+    }
+}
+</script>

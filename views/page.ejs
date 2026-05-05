@@ -1,151 +1,102 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
     <%
         const baseUrl = "https://www.dynamicdecksinc.com/";
         const validPages = ["decks", "pergolas", "covers", "construction"];
-        const headUrl = validPages.includes(pageData.page) ? `${baseUrl}${pageData.page}` : `${baseUrl}${pageData.slug}`;
+        const headUrl = validPages.includes(pageData.page) ? `${baseUrl}${pageData.page}` : `${baseUrl}blog/${pageData.slug}`;
     %>
     <% const headDescription = "Dynamic Decks builds durable, custom outdoor decks, pergolas, and covers with premium materials for lasting beauty and year-round outdoor living enjoyment." %>
     <% const headTitle = `Dynamic Decks - ${pageData.header}` %>
-    
-    <!-- Primary Meta Tags -->
+
     <title><%= headTitle %></title>
     <meta name="title" content="<%= headTitle %>">
     <meta name="description" content="<%= headDescription %>">
-    <meta name="author" content="Dynamic Decks">
-    <meta name="language" content="English">
-
-    <meta name="DC.title" content="Dynamic Decks" />
-    <meta name="geo.region" content="US-WA" />
-    <meta name="geo.placename" content="Spokane" />
-    <meta name="geo.position" content="47.71653;-117.383242" />
-    <meta name="ICBM" content="47.71653, -117.383242" />
-    <meta name = "keywords" content ="decks, washington decks, deck builder, deck builder spokane, spokane decks">
-
-    <!-- Canonical URL -->
+    <meta name="keywords" content="decks, washington decks, deck builder, deck builder spokane, spokane decks">
     <link rel="canonical" href="<%= headUrl %>">
 
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="<%= headUrl %>">
     <meta property="og:title" content="<%= headTitle %>">
     <meta property="og:description" content="<%= headDescription %>">
-    <meta property="og:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
     <meta property="og:site_name" content="Dynamic Decks">
     <meta property="og:locale" content="en_US">
-
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="<%= headUrl %>">
-    <meta name="twitter:title" content="<%= headTitle %>">
-    <meta name="twitter:description" content="<%= headDescription %>">
-    <meta name="twitter:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
-
-    <!-- Additional SEO and Social Tags -->
-    <meta name="theme-color" content="#317EFB">
+    <meta name="theme-color" content="#22B8F5">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    
-    <%- include("includes/header") %>
-</header>
+<header><%- include("includes/header") %></header>
+
 <body>
-    <div style="background-image: url('<%= pageData.hero %>'); background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;">
-        <div class="hero-banner">
-            <h1><%= pageData.header %></h1>
+
+<!-- PAGE HERO -->
+<div class="page-hero" style="background-image: url('<%= pageData.hero || "/img/ui/wood-bckg.webp" %>');">
+    <div class="page-hero-content">
+        <h1><%= pageData.header %></h1>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="page-wrapper">
+    <div class="container">
+        <div class="content-card">
+            <div class="page-content" style="padding: 0;">
+                <%- pageData.content %>
+            </div>
         </div>
-    <main>
-        <%- include("includes/content") %>
-    </main>
+    </div>
+</div>
+
+<!-- CTA BAND -->
+<section class="cta-band section-dark">
+    <div class="container">
+        <h2>Interested in This Service?</h2>
+        <p>Let's talk about your project. Get a free estimate today.</p>
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+            <a href="/contact" class="btn btn-primary btn-lg">
+                <ion-icon name="document-text-outline"></ion-icon>
+                Get a Free Quote
+            </a>
+            <a href="/gallery" class="btn btn-secondary btn-lg">
+                <ion-icon name="images-outline"></ion-icon>
+                View Our Gallery
+            </a>
+        </div>
+    </div>
+</section>
+
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>
 
 <script>
-    //For scrolling elements n stuff
 function reveal() {
-    var reveals = document.querySelectorAll(".reveal");
-    for (var i = 0; i < reveals.length; i++) {
-        var windowHeight = window.innerHeight;
-        var elementTop = reveals[i].getBoundingClientRect().top;
-        var elementVisible = 40;
-        if (elementTop < windowHeight - elementVisible) {
-        reveals[i].classList.add("active");
-        } else {
-        reveals[i].classList.remove("active");
+    document.querySelectorAll(".reveal").forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight - 40) {
+            el.classList.add("active");
         }
-    }
+    });
     numberAnimate();
 }
-
-//animated numbers
 function numberAnimate() {
-    var numberAnimations = document.querySelectorAll(".number-animate");
-    var interval = 300;
-
-    numberAnimations.forEach(( numberAnimation ) => {
-        if(!numberAnimation.classList.contains("active"))
-        {
-            numberAnimation.innerHTML="0";
-        }
-        if((numberAnimation.classList.contains("active"))
-        &&(numberAnimation.innerHTML=="0"))
-        {
-            var startValue = 0;
-            var finalValue = parseInt(numberAnimation.getAttribute("data-val"));
-            var duration = finalValue/interval;
-            var counter = setInterval( function () {
-                startValue += duration;
-                numberAnimation.innerHTML = Math.ceil(startValue);
-                if(startValue>=finalValue)
-                {
-                    numberAnimation.innerHTML = finalValue;
-                    clearInterval(counter);
-                }
-            }, 1);
+    document.querySelectorAll(".number-animate").forEach(el => {
+        if (!el.classList.contains("counted")) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight - 20) {
+                el.classList.add("counted");
+                const finalValue = parseInt(el.getAttribute("data-val"));
+                const duration = 1200, stepTime = 16;
+                const increment = finalValue / (duration / stepTime);
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= finalValue) { el.textContent = finalValue; clearInterval(timer); }
+                    else el.textContent = Math.ceil(current);
+                }, stepTime);
+            }
         }
     });
 }
-
 window.addEventListener("scroll", reveal);
+window.addEventListener("load", reveal);
 </script>
-<script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const phoneInput = document.getElementById('phoneNumber');
-        
-            phoneInput.addEventListener('input', (e) => {
-                let value = e.target.value;
-        
-                // Remove all non-digit characters
-                value = value.replace(/\D/g, '');
-        
-                // Limit to 10 digits
-                if (value.length > 10) {
-                    value = value.slice(0, 10);
-                }
-        
-                // Format as (XXX) XXX-XXXX
-                if (value.length > 6) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
-                } else if (value.length > 3) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-                } else if (value.length > 0) {
-                    value = `(${value}`;
-                }
-        
-                e.target.value = value;
-            });
-
-            phoneInput.addEventListener('keypress', (e) => {
-                if (!/\d/.test(e.key)) {
-                    e.preventDefault();
-                }
-            });
-        });
-        </script>

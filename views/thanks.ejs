@@ -1,31 +1,38 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
-    <title>Dynamic Decks, Inc</title>
+    <title>Thank You | Dynamic Decks</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#22B8F5">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    <%- include("includes/header") %>
-</header>
+<header><%- include("includes/header") %></header>
+
 <body>
-    <main>
-        <div class="content">
-            <div></div>
-
-            <div>
-                <br>
-                <h1 style="text-align: center;">Thank You!</h1>
-                <br>
-                <p>We'll get back to you as soon as possible!</p>
-                <br>
-            </div>
-
-            <div></div>
+<div class="success-page">
+    <div>
+        <div class="success-icon-wrap"><ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon></div>
+        <h1>Thank You!</h1>
+        <p>We received your message and will be in touch as soon as possible, usually within 1 business day.</p>
+        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+            <a href="/" class="btn btn-primary">
+                <ion-icon name="home-outline"></ion-icon>
+                Back to Home
+            </a>
+            <a href="/gallery" class="btn btn-outline">
+                <ion-icon name="images-outline"></ion-icon>
+                View Our Gallery
+            </a>
         </div>
-    </main>
+        <div style="margin-top: 36px; padding: 20px 28px; background-color: rgba(255,255,255,0.82); border-radius: var(--radius-lg); border: 1.5px solid var(--border); max-width: 420px; margin-left: auto; margin-right: auto;">
+            <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 8px;">Have a question right now?</p>
+            <a href="tel:5094643325" class="btn btn-dark" style="display:inline-flex;">
+                <ion-icon name="call-outline"></ion-icon>
+                Call (509) 464-3325
+            </a>
+        </div>
+    </div>
+</div>
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>

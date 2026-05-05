@@ -1,115 +1,110 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <title>Dynamic Decks, Inc</title>
+    <title>Edit: <%= pageData.header %> | Dynamic Decks Admin</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0f0a05">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    
-    <%- include("includes/header") %>
-</header>
+<header><%- include("includes/header") %></header>
+
 <body>
-    <main>
-        <h1 style="text-align: center;">
-            Edit <%= pageData.header %>
-        </h1>
-        <br>
-        <div class="page-content">
-            <form method="POST" action="/edit/<%= id %>" enctype="multipart/form-data" class="contact-form">
-                <label for="header">header</label>
-                <input 
-                type="text" 
-                id="header" 
-                name="header" 
-                placeholder="Enter blog header..." 
-                required
-                value="<%= pageData.header.replace(/"/g, '&quot;') %>"
-                >
-
-                <!-- Hero Image Upload -->
-                <label for="heroImage">Hero Image</label>
-                <% if (pageData.hero) { %>
-                    <div style="margin-bottom: 8px;">
-                        <img src="<%= pageData.hero %>" alt="Current Hero" style="max-width: 100%; border-radius: 8px;">
-                    </div>
-                <% } %>
-                <input type="file" id="heroImage" name="heroImage" accept="image/*">
-                <br>
-                <br>
-                <label for="markdown">Content</label>
-                <textarea 
-                id="markdown" 
-                name="content" 
-                placeholder="Write Markdown here..." 
-                required
-                rows="10"
-                ><%= pageData.content %></textarea>
-
-                <!-- Image Upload UI -->
-                <label for="imageUpload">Insert Image</label>
-                <input type="file" id="imageUpload" accept="image/*">
-                <br>
-                <button type="button" onclick="uploadImage()">Upload & Insert</button>
-
-                <br><br>
-
-                <button type="submit">Save <%= pageData.header %></button>
-
-                <br><br>
-
-                
-            </form>
-            <br>
-            <div class="preview" id="preview"></div>
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Edit: <%= pageData.header %></h1>
+            <p>Changes save immediately. Use markdown or HTML in the content field.</p>
         </div>
-    </main>
-    <script>
-    const textarea = document.getElementById("markdown");
-    const preview = document.getElementById("preview");
 
-    // Live preview the raw HTML directly
-    textarea.addEventListener("input", () => {
-        preview.innerHTML = textarea.value;
-    });
+        <div class="admin-card">
+            <form method="POST" action="/edit/<%= id %>" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Page Title / Header</label>
+                    <input type="text" id="header" name="header" placeholder="Page title" required value="<%= pageData.header.replace(/"/g, '&quot;') %>">
+                </div>
 
-    // Initialize preview on page load
-    preview.innerHTML = textarea.value;
+                <div class="form-group">
+                    <label>Hero Image</label>
+                    <% if (pageData.hero) { %>
+                    <div style="margin-bottom: 12px;">
+                        <img src="<%= pageData.hero %>" alt="Current hero image" style="max-width: 100%; max-height: 240px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); object-fit: cover;">
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Current hero image. Upload a new one to replace it.</p>
+                    </div>
+                    <% } %>
+                    <input type="file" id="heroImage" name="heroImage" accept="image/*" style="padding: 8px;">
+                </div>
 
-    async function uploadImage() {
-        const fileInput = document.getElementById("imageUpload");
-        const file = fileInput.files[0];
+                <div class="form-group">
+                    <label>Content (HTML or Markdown)</label>
+                    <textarea id="markdown" name="content" placeholder="Write content here..." required rows="20" style="font-family: monospace; font-size: 14px;"><%= pageData.content %></textarea>
+                </div>
 
-        if (!file) return alert("Please select an image");
+                <div class="form-group">
+                    <label>Insert Image into Content</label>
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <input type="file" id="imageUpload" accept="image/*" style="padding: 8px; flex: 1; min-width: 200px;">
+                        <button type="button" onclick="uploadImage()" class="btn btn-dark btn-sm">
+                            <ion-icon name="cloud-upload-outline"></ion-icon>
+                            Upload & Insert
+                        </button>
+                    </div>
+                    <%- include("includes/editor-gallery") %>
+                </div>
 
-        const formData = new FormData();
-        formData.append("image", file);
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px;">
+                    <button type="submit" class="btn btn-primary">
+                        <ion-icon name="save-outline"></ion-icon>
+                        Save Changes
+                    </button>
+                    <a href="/console" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
 
-        try {
-            const res = await fetch("/upload-markdown-image", {
-                method: "POST",
-                body: formData,
-            });
-
-            const data = await res.json();
-            if (data.error) throw new Error(data.error);
-
-            // Insert <img> tag directly into HTML content
-            const cursor = textarea.selectionStart;
-            const htmlImage = `<img src="${data.url}" alt="Image">`;
-            const text = textarea.value;
-            textarea.value = text.substring(0, cursor) + htmlImage + text.substring(cursor);
-
-            preview.innerHTML = textarea.value;
-        } catch (err) {
-            alert("Upload failed: " + err.message);
-        }
-    }
-</script>
+        <!-- Live Preview -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2>Live Preview</h2>
+            </div>
+            <div id="preview" class="page-content" style="padding: 0; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 24px; min-height: 100px;"></div>
+        </div>
+    </div>
+</div>
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>
+
+<script>
+const textarea = document.getElementById("markdown");
+const preview = document.getElementById("preview");
+
+function updatePreview() {
+    preview.innerHTML = textarea.value;
+}
+
+textarea.addEventListener("input", updatePreview);
+updatePreview();
+
+async function uploadImage() {
+    const fileInput = document.getElementById("imageUpload");
+    const file = fileInput.files[0];
+    if (!file) { alert("Please select an image first."); return; }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+        const res = await fetch("/upload-markdown-image", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        const cursor = textarea.selectionStart;
+        const htmlImage = `<img src="${data.url}" alt="Image">`;
+        textarea.value = textarea.value.substring(0, cursor) + htmlImage + textarea.value.substring(cursor);
+        updatePreview();
+    } catch (err) {
+        alert("Upload failed: " + err.message);
+    }
+}
+</script>

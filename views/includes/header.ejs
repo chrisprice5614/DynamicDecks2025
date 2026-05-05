@@ -1,60 +1,95 @@
+<div class="site-header">
+    <div class="nav-container">
+        <a href="/" class="nav-logo">
+            <img class="logo-main" src="/img/icons/logo.webp" alt="Dynamic Decks logo" width="200" height="54" fetchpriority="high" decoding="async">
+        </a>
 
-<div style="display: grid; grid-template-columns: 1.1fr 1fr; align-items: center;">
-    <div style="margin-left: 12px;">
-        <div style="display: grid; grid-template-columns: 1fr 0.25fr; align-items: center;">
-            <div>
-                <a href="/"><img src="/img/icons/logo.webp" alt="Dynamic Decks logo" style="width: 100%; max-width: 640px;"></a>
-            </div>
-            <div style="text-align: left;">
-                <img src="/img/ui/usa.webp" alt="American flag made in US image" style="width: 100%; min-width: 72px;">
-            </div>
-        </div>
-    </div>
-    <nav class="navbar" style="text-align: right; align-items: center; ">
-        <span class="hidden-mobile">
-            <span><a href="/">HOME</a></span>
-            <span>
-                <div class="dropdown">
-                    <div class="dropbtn"><ion-icon name="caret-down-outline"></ion-icon>SERVICES</div>
-                    <div class="dropdown-content" style="width: 100%; text-align: center;">
-                        <a href="/decks">DECKS</a>
-                        <hr>
-                        <a href="/pergolas">PERGOLAS</a>
-                        <hr>
-                        <a href="/covers">COVERS</a>
-                        <hr>
-                        <a href="/construction">SPECIALTY PROJECTS</a>
+        <nav class="nav-links" aria-label="Main navigation">
+            <a href="/">Home</a>
+            <div class="nav-dropdown" id="nav-services-dropdown">
+                <div class="nav-dropdown-toggle" id="nav-services-toggle" role="button" tabindex="0" aria-expanded="false" aria-haspopup="true">
+                    Services <ion-icon name="chevron-down-outline" style="font-size:12px;"></ion-icon>
+                </div>
+                <div class="nav-dropdown-menu" id="nav-services-menu">
+                    <div class="nav-dropdown-menu-inner">
+                        <a href="/decks">Decks</a>
+                        <a href="/pergolas">Pergolas</a>
+                        <a href="/covers">Covers</a>
+                        <a href="/construction">Specialty Projects</a>
                     </div>
                 </div>
-            </span>
-            <span><a href="/gallery">GALLERY</a></span>
-            <span><a href="/blog">BLOG</a></span>
-            <span><a href="/contact"><button style="font-size: clamp(12pt, 1.5vw, 36pt);">CONTACT</button></a></span>
-        </span>
-        <span class="unhidden-mobile" style="text-align: right;">
-            <span onclick="toggleMobileMenu()">☰</span>
-            <span><a href="/contact"><button style="font-size: clamp(12pt, 1.5vw, 36pt);">CONTACT</button></a></span>
-        </span>
+            </div>
+            <a href="/gallery">Gallery</a>
+            <a href="/blog">Blog</a>
+            <a href="/contact" class="nav-cta">Free Quote</a>
+        </nav>
 
-        <div id="mobileMenu" class="mobile-menu">
-            <a href="/">HOME</a>
-            <a href="/decks">DECKS</a>
-            <a href="/pergolas">PERGOLAS</a>
-            <a href="/covers">COVERS</a>
-            <a href="/construction">SPECIALTY PROJECTS</a>
-            <a href="/gallery">GALLERY</a>
-            <a href="/blog">BLOG</a>
-        </div>
-        
+        <button class="nav-hamburger unhidden-mobile" onclick="toggleMobileNav()" aria-label="Open menu" aria-expanded="false" id="hamburger-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+        <a href="/">Home</a>
+        <a href="/decks">Decks</a>
+        <a href="/pergolas">Pergolas</a>
+        <a href="/covers">Covers</a>
+        <a href="/construction">Specialty Projects</a>
+        <a href="/gallery">Gallery</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact" style="color: var(--brand-yellow);">Get a Free Quote</a>
     </nav>
-    <br>
 </div>
+
+<!-- Floating Call Button -->
+<a href="tel:15094643325" class="floating-call" aria-label="Call Dynamic Decks">
+    <ion-icon name="call-outline" class="call-icon"></ion-icon>
+    <span class="call-text">(509) 464-3325</span>
+</a>
+
 <script>
-  function toggleMobileMenu() {
-    const menu = document.getElementById('mobileMenu');
-    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-  }
+function toggleMobileNav() {
+    const nav = document.getElementById('mobile-nav');
+    const btn = document.getElementById('hamburger-btn');
+    const isOpen = nav.classList.toggle('open');
+    btn.setAttribute('aria-expanded', isOpen);
+}
+document.addEventListener('click', function(e) {
+    const nav = document.getElementById('mobile-nav');
+    const btn = document.getElementById('hamburger-btn');
+    const header = document.querySelector('.site-header');
+    if (nav.classList.contains('open') && !header.contains(e.target)) {
+        nav.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+    }
+});
+
+(function desktopServicesDropdown() {
+    const dd = document.getElementById('nav-services-dropdown');
+    if (!dd || window.matchMedia('(max-width: 900px)').matches) return;
+    const toggle = document.getElementById('nav-services-toggle');
+    let hideTimer = null;
+    const CLOSE_DELAY_MS = 450;
+    function open() {
+        if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+        dd.classList.add('open');
+        if (toggle) toggle.setAttribute('aria-expanded', 'true');
+    }
+    function scheduleClose() {
+        if (hideTimer) clearTimeout(hideTimer);
+        hideTimer = setTimeout(function () {
+            dd.classList.remove('open');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+            hideTimer = null;
+        }, CLOSE_DELAY_MS);
+    }
+    dd.addEventListener('mouseenter', open);
+    dd.addEventListener('mouseleave', scheduleClose);
+    dd.addEventListener('focusin', open);
+    dd.addEventListener('focusout', function (e) {
+        if (!dd.contains(e.relatedTarget)) scheduleClose();
+    });
+})();
 </script>
-
-
-<button class="quote-button bottom-right" onclick="window.location.href='/contact';"><b>GET YOUR FREE QUOTE</b></button>

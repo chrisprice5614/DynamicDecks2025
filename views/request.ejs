@@ -1,40 +1,31 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
-    <title>Dynamic Decks, Inc</title>
+    <title>Admin Login | Dynamic Decks</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#22B8F5">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    
-    <%- include("includes/header") %>
-</header>
+<header><%- include("includes/header") %></header>
+
 <body>
-    <main>
-        <br>
-        <div class="content">
-            <div></div>
-
-            <div>
-                <div style="text-align: center;">
-                    <h1 >Request Login Link</h1>
-                    <br>
-                    <button class="quote-button" onclick="window.location.href='/login/dynamic';"><b>Dynamic Decks Login</b></button>
-                    <br>
-                    <button class="quote-button" onclick="window.location.href='/login/cpm';"><b>Chris Price Music Login</b></button>
-                    <br>
-                </div>
-                <br>
-                <p>This website is managed by Chris Price Music. For more information, please email <a href="mailto:chris@chrispricemusic.net">chris@chrispricemusic.net</a></p>
-
-            </div>
-
-            <div></div>
+<div class="success-page">
+    <div>
+        <div class="success-icon-wrap"><ion-icon name="lock-closed-outline" aria-hidden="true"></ion-icon></div>
+        <h1>Admin Login</h1>
+        <p>Click below to receive a secure sign-in link via email.</p>
+        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+            <a href="/login/dynamic" class="btn btn-primary">
+                <ion-icon name="mail-outline"></ion-icon>
+                Send Login Link
+            </a>
         </div>
-        <br>
-    </main>
+        <p style="margin-top: 20px; font-size: 13px; color: var(--text-muted);">
+            This site is managed by Chris Price Music.<br>
+            Questions? <a href="mailto:chris@chrispricemusic.net" style="color: var(--brand-blue);">chris@chrispricemusic.net</a>
+        </p>
+    </div>
+</div>
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>

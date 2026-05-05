@@ -1,114 +1,130 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
-    <title>Dynamic Decks, Inc</title>
+    <title>Dynamic Decks - Career Opportunities | Spokane, WA</title>
+    <meta name="description" content="Join the Dynamic Decks team in Spokane, WA. We're looking for skilled craftspeople who love building exceptional outdoor spaces. Apply today!">
+    <meta name="theme-color" content="#0f0a05">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    
-    <%- include("includes/header") %>
-</header>
-<body style="background-image: url(/img/ui/wood-light.webp);">
-    <main>
-        <div class="content">
-            <div></div>
+<header><%- include("includes/header") %></header>
 
-            <div>
-                <br>
-                <h1 style="text-align: center; color: white; text-shadow: 1px 1px 4px #000;" class="title">Career Opportunities</h1>
-                <br>
-                <b>Looking to build some projects with a wonderful team? Fill this out and we'll get back to you as soon as possible!</b>
-                <br>
-                <br>
-                <form action="/career" method="POST" class = "contact-form" name="FormName">
-                    <label>
-                        First Name:
-                        <input type="text" name="firstname" style="width: 100%" required>
-                    </label>
-                    <label>
-                        Last Name:
-                        <input type="text" name="lastname" style="width: 100%" required>
-                    </label>
-                    <label>
-                        Phone number:
-                        <input id="phoneNumber" type="tel" name="phone" style="width: 100%" maxlength="16" placeholder="e.g. (509) 555 - 1234" required>
-                    </label>
-                    <label>
-                        Address:
-                        <input  id="searchTextField"type="text" name="address" required>
-                    </label>
-                    <label>
-                        Email:
-                        <input type="email" name="email" required placeholder="e.g. jdoe555@gmail.com">
-                    </label>
-                    <label>
-                        Highest Education:
-                        <br>
-                        <select id="education" name="education">
+<body>
+
+<!-- PAGE HERO -->
+<div class="page-hero" style="background-image: url('/img/ui/wood-bckg.webp'); min-height: 260px;">
+    <div class="page-hero-content">
+        <h1>Career Opportunities</h1>
+        <p>Build your career with Spokane's premier deck construction company</p>
+    </div>
+</div>
+
+<!-- CAREER SECTION -->
+<section class="section section-warm">
+    <div class="container">
+        <div class="contact-wrap">
+            <!-- Info Side -->
+            <div class="contact-info">
+                <h2>Join Our Team</h2>
+                <p>We're always looking for talented, motivated people to join the Dynamic Decks family. If you're passionate about quality craftsmanship and love working outdoors, we want to hear from you.</p>
+
+                <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px;">
+                    <div class="contact-detail">
+                        <div class="contact-detail-icon"><ion-icon name="shield-checkmark-outline"></ion-icon></div>
+                        <div class="contact-detail-text">
+                            <h4>What We Offer</h4>
+                            <p>Competitive pay, a great team, and the satisfaction of building something real every day.</p>
+                        </div>
+                    </div>
+                    <div class="contact-detail">
+                        <div class="contact-detail-icon"><ion-icon name="people-outline"></ion-icon></div>
+                        <div class="contact-detail-text">
+                            <h4>Family Culture</h4>
+                            <p>We're a tight-knit team. Everyone is treated with respect and given room to grow.</p>
+                        </div>
+                    </div>
+                    <div class="contact-detail">
+                        <div class="contact-detail-icon"><ion-icon name="construct-outline"></ion-icon></div>
+                        <div class="contact-detail-text">
+                            <h4>Quality Work</h4>
+                            <p>We take pride in what we build. You'll be part of projects that families love for decades.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 32px; padding: 24px; background-color: var(--bg-white); border-radius: var(--radius-lg); border-left: 4px solid var(--accent); box-shadow: var(--shadow-sm);">
+                    <div class="success-icon-wrap" style="width: 44px; height: 44px; margin-bottom: 8px;"><ion-icon name="location-outline" aria-hidden="true"></ion-icon></div>
+                    <h4 style="margin-bottom: 6px;">Based in Spokane, WA</h4>
+                    <p style="color: var(--text-muted); font-size: 14px; margin: 0;">Local work, local team. You'll be working on projects throughout the Spokane area.</p>
+                </div>
+            </div>
+
+            <!-- Form Side -->
+            <div class="form-card">
+                <h2>Apply Now</h2>
+                <p class="form-sub">Fill out the form below and we'll be in touch soon.</p>
+                <form action="/career" method="POST" name="CareerForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" name="firstname" placeholder="John" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" name="lastname" placeholder="Doe" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input id="phoneNumber" type="tel" name="phone" maxlength="16" placeholder="(509) 555-1234" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="email" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Home Address</label>
+                        <input type="text" name="address" placeholder="Your address" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Highest Education Level</label>
+                        <select name="education">
                             <option value="Some High School">Some High School</option>
                             <option value="High School Graduate / GED">High School Graduate / GED</option>
                             <option value="Some College">Some College</option>
                             <option value="Associate's Degree">Associate's Degree</option>
                             <option value="Bachelor's Degree">Bachelor's Degree</option>
-                          </select>
-                    </label>
-                    <br>
-                    <br>
-                    <label>
-                        Previous work experience:
-                        <textarea name="message"></textarea>
-                    </label>
-
-                    <button  type="submit" class="galleryButton" style="padding-top: 8px; padding-bottom: 8px; padding-left: 12px; padding-right: 12px;"><b>Send</b></button>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Previous Work Experience</label>
+                        <textarea name="message" placeholder="Tell us about any relevant construction, carpentry, or outdoor work experience..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; font-size:15px; padding:16px;">
+                        <ion-icon name="send-outline"></ion-icon>
+                        Submit Application
+                    </button>
                 </form>
-                <br>
-                <br>
-                <br>
-
-                
             </div>
-
-            <div></div>
         </div>
-    </main>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const phoneInput = document.getElementById('phoneNumber');
-        
-            phoneInput.addEventListener('input', (e) => {
-                let value = e.target.value;
-        
-                // Remove all non-digit characters
-                value = value.replace(/\D/g, '');
-        
-                // Limit to 10 digits
-                if (value.length > 10) {
-                    value = value.slice(0, 10);
-                }
-        
-                // Format as (XXX) XXX-XXXX
-                if (value.length > 6) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
-                } else if (value.length > 3) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-                } else if (value.length > 0) {
-                    value = `(${value}`;
-                }
-        
-                e.target.value = value;
-            });
+    </div>
+</section>
 
-            phoneInput.addEventListener('keypress', (e) => {
-                if (!/\d/.test(e.key)) {
-                    e.preventDefault();
-                }
-            });
-        });
-        </script>
-        
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const phoneInput = document.getElementById('phoneNumber');
+    if (!phoneInput) return;
+    phoneInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        if (value.length > 6) value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+        else if (value.length > 3) value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        else if (value.length > 0) value = `(${value}`;
+        e.target.value = value;
+    });
+});
+</script>

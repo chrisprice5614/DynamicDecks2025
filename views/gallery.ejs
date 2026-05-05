@@ -1,247 +1,197 @@
 <html lang="en">
 <head>
-    
     <%- include("includes/head") %>
-
     <% const headUrl = "https://www.dynamicdecksinc.com/gallery" %>
-    <% const headDescription = "Dynamic Decks builds durable, custom outdoor decks, pergolas, and covers with premium materials for lasting beauty and year-round outdoor living enjoyment." %>
-    <% const headTitle = "Dynamic Decks - Gallery" %>
-    
-    <!-- Primary Meta Tags -->
+    <% const headDescription = "Browse Dynamic Decks' project gallery: custom decks, pergolas, covers, railings, and specialty outdoor projects built in Spokane, WA." %>
+    <% const headTitle = "Dynamic Decks - Project Gallery | Spokane Deck Builder" %>
+
     <title><%= headTitle %></title>
     <meta name="title" content="<%= headTitle %>">
     <meta name="description" content="<%= headDescription %>">
-    <meta name="author" content="Dynamic Decks">
-    <meta name="language" content="English">
-
-    <meta name="DC.title" content="Dynamic Decks" />
-    <meta name="geo.region" content="US-WA" />
-    <meta name="geo.placename" content="Spokane" />
-    <meta name="geo.position" content="47.71653;-117.383242" />
-    <meta name="ICBM" content="47.71653, -117.383242" />
-    <meta name = "keywords" content ="decks, washington decks, deck builder, deck builder spokane, spokane decks">
-
-    <!-- Canonical URL -->
+    <meta name="keywords" content="deck gallery, spokane deck photos, deck builder portfolio, pergola gallery spokane">
     <link rel="canonical" href="<%= headUrl %>">
-
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="<%= headUrl %>">
     <meta property="og:title" content="<%= headTitle %>">
     <meta property="og:description" content="<%= headDescription %>">
-    <meta property="og:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
     <meta property="og:site_name" content="Dynamic Decks">
-    <meta property="og:locale" content="en_US">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="<%= headUrl %>">
-    <meta name="twitter:title" content="<%= headTitle %>">
-    <meta name="twitter:description" content="<%= headDescription %>">
-    <meta name="twitter:image" content="<%= headUrl %>/img/deck-stuff/deck-2.jpg">
-
-    <!-- Additional SEO and Social Tags -->
-    <meta name="theme-color" content="#317EFB">
+    <meta name="theme-color" content="#22B8F5">
 </head>
 <%- include("includes/sticky") %>
-<header>
-    
-    <%- include("includes/header") %>
-</header>
-<body style="background-image: url(/img/ui/wood-light.webp);">
-    <main>
-        <div class="content">
-            <div></div>
+<header><%- include("includes/header") %></header>
 
-            <div>
-                <br>
-                <h1 style="text-align: center; color: white; text-shadow: 1px 1px 4px #000;" class="title">Project Gallery</h1>
-                <br>
-                <br>
-                <div style="text-align: center;">
-                    <button class="quote-button" style="margin: 8px; <% if(query == "decks") { %> background-color: #96EB22; <% } %>" onclick="window.location.href='/gallery<% if(query!= 'decks')  { %>?filter=decks <% } %>';">Decks</button>
-                    <button class="quote-button" style="margin: 8px; <% if(query == "pergola") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'pergola')  { %>?filter=pergola <% } %>';">Pergolas</button>
-                    <button class="quote-button" style="margin: 8px; <% if(query == "cover") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'cover')  { %>?filter=cover <% } %>';">Covers</button>
-                    <button class="quote-button" style="margin: 8px; <% if(query == "privacywall") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'privacywall')  { %>?filter=privacywall <% } %>';">Privacy Walls</button>
-                    <button class="quote-button" style="margin: 8px; <% if(query == "stairs") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'stairs')  { %>?filter=stairs <% } %>';">Stairs</button>
-                    <button class="quote-button" style="margin: 8px; <% if(query == "railing") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'railing')  { %>?filter=railing <% } %>';">Railing</button>
-                    <button class="quote-button" style="margin: 8px; <% if(query == "lighting") { %> background-color: #96EB22; <% } %>"" onclick="window.location.href='/gallery<% if(query!= 'lighting')  { %>?filter=lighting <% } %>';">Lighting</button>
-                </div>
-                <% if(user ) { %>
-                <form action="/upload" method="POST" class = "contact-form" name="FormName" enctype="multipart/form-data">
-                    <label>
-                        Upload Photo:
-                        <br>
-                        <input type="file" id="file" name="file" accept=".png,.jpg,.jpeg" required/>
-                    </label>
-                    <br>
-                    <label>
-                        Description:
-                        <input id="description" name="description" style="width: 100%" placeholder="White deck with a kingpost style cover." required>
-                    </label>
+<body>
 
-                    <label>
-                        <input type="checkbox" name="pergola" value="pergola"> Pergola
-                      </label><br>
-                  
-                      <label>
-                        <input type="checkbox" name="cover" value="cover"> Cover
-                      </label><br>
-                  
-                      <label>
-                        <input type="checkbox" name="privacywall" value="privacywall"> Privacy Wall
-                      </label><br>
-                  
-                      <label>
-                        <input type="checkbox" name="decks" value="decks"> Decks
-                      </label><br>
-                  
-                      <label>
-                        <input type="checkbox" name="stairs" value="stairs"> Stairs
-                      </label><br>
-                  
-                      <label>
-                        <input type="checkbox" name="railing" value="railing"> Railing
-                      </label><br>
-                  
-                      <label>
-                        <input type="checkbox" name="lighting" value="lighting"> Lighting
-                      </label><br>
-                      <br>
-                    
+<!-- PAGE HERO -->
+<div class="page-hero" style="background-image: url('/img/ui/wood-bckg.webp'); min-height: 260px;">
+    <div class="page-hero-content">
+        <h1>Project Gallery</h1>
+        <p>Over 1,000 projects completed across the Spokane area</p>
+    </div>
+</div>
 
-                    <button type="submit" class="galleryButton" style="padding-top: 8px; padding-bottom: 8px; padding-left: 12px; padding-right: 12px;"><b>Add to Gallery</b></button>
-                </form>
-                <% } %>
-                <br>
+<!-- GALLERY SECTION -->
+<section class="section section-warm">
+    <div class="container">
 
-                
+        <!-- Filter Bar -->
+        <div class="gallery-filter-bar">
+            <a href="/gallery" class="filter-btn <%= query == null ? 'active' : '' %>">All Projects</a>
+            <a href="/gallery?filter=decks" class="filter-btn <%= query == 'decks' ? 'active' : '' %>">Decks</a>
+            <a href="/gallery?filter=pergola" class="filter-btn <%= query == 'pergola' ? 'active' : '' %>">Pergolas</a>
+            <a href="/gallery?filter=cover" class="filter-btn <%= query == 'cover' ? 'active' : '' %>">Covers</a>
+            <a href="/gallery?filter=privacywall" class="filter-btn <%= query == 'privacywall' ? 'active' : '' %>">Privacy Walls</a>
+            <a href="/gallery?filter=stairs" class="filter-btn <%= query == 'stairs' ? 'active' : '' %>">Stairs</a>
+            <a href="/gallery?filter=railing" class="filter-btn <%= query == 'railing' ? 'active' : '' %>">Railing</a>
+            <a href="/gallery?filter=lighting" class="filter-btn <%= query == 'lighting' ? 'active' : '' %>">Lighting</a>
+        </div>
+
+        <!-- Admin Upload Form -->
+        <% if(user) { %>
+        <div class="admin-card" style="margin-bottom: 32px;">
+            <div class="admin-card-header">
+                <h2>Upload Photo</h2>
             </div>
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Photo File</label>
+                        <input type="file" id="file" name="file" accept=".png,.jpg,.jpeg" required style="padding: 8px;">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" name="description" placeholder="e.g. White composite deck with pergola" required>
+                    </div>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+                    <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer; text-transform:none;">
+                        <input type="checkbox" name="pergola" value="pergola"> Pergola
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer; text-transform:none;">
+                        <input type="checkbox" name="cover" value="cover"> Cover
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer; text-transform:none;">
+                        <input type="checkbox" name="privacywall" value="privacywall"> Privacy Wall
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer; text-transform:none;">
+                        <input type="checkbox" name="decks" value="decks"> Decks
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer; text-transform:none;">
+                        <input type="checkbox" name="stairs" value="stairs"> Stairs
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer; text-transform:none;">
+                        <input type="checkbox" name="railing" value="railing"> Railing
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer; text-transform:none;">
+                        <input type="checkbox" name="lighting" value="lighting"> Lighting
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary galleryButton">
+                    <ion-icon name="cloud-upload-outline"></ion-icon>
+                    Add to Gallery
+                </button>
+            </form>
+        </div>
+        <% } %>
 
-            <div></div>
+        <!-- Gallery Masonry Grid -->
+        <div class="gallery-masonry" id="galleryGrid">
+            <% images.forEach(image => { %>
+            <div class="gallery-item" onclick="openLightbox('/img/gallery/<%= image.path %>', '<%= image.description %>')">
+                <img
+                    src="/img/gallery/<%= image.path %>"
+                    alt="<%= image.description %>"
+                    loading="lazy"
+                >
+                <div class="gallery-item-overlay">
+                    <p><%= image.description %></p>
+                </div>
+                <% if(user) { %>
+                <a href="/delete/<%= image.id %>" class="gallery-delete-btn" onclick="event.stopPropagation(); return confirm('Delete this photo?');" title="Delete photo">
+                    <ion-icon name="trash-outline"></ion-icon>
+                </a>
+                <% } %>
+            </div>
+            <% }) %>
         </div>
 
-        <div id="Gallery">
-                    
+        <% if(images.length === 0) { %>
+        <div style="text-align:center; padding: 60px 20px; color: var(--text-muted);">
+            <div class="success-icon-wrap" style="margin: 0 auto 16px; width: 64px; height: 64px;"><ion-icon name="images-outline" aria-hidden="true"></ion-icon></div>
+            <h3>No photos in this category yet</h3>
+            <p style="margin-top: 8px;">Check back soon or <a href="/gallery" style="color: var(--accent);">view all projects</a>.</p>
         </div>
-    </main>
+        <% } %>
+    </div>
+</section>
 
-    <script src="/scripts/BLazy.js"></script>
-    
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">
+        <ion-icon name="close-outline"></ion-icon>
+    </button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="">
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-    
-            function removeAllChildNodes(parent) {
-                while (parent.firstChild) {
-                    parent.removeChild(parent.firstChild);
-                }
-            }
-    
-            function shuffle(array) {
-                let currentIndex = array.length, randomIndex;
-    
-                while (currentIndex > 0) {
-                    randomIndex = Math.floor(Math.random() * currentIndex);
-                    currentIndex--;
-                    [array[currentIndex], array[randomIndex]] = [
-                        array[randomIndex], array[currentIndex]
-                    ];
-                }
-    
-                return array;
-            }
-    
-            function buildGallery() {
-                (function () {
-                    var bLazy = new Blazy();
-                })();
-    
-                const images = <%- JSON.stringify(images) %>;
-                shuffle(images);
-    
-                const gallery = document.getElementById("Gallery");
-                removeAllChildNodes(gallery);
-    
-                let rowz = 0;
-    
-                images.forEach(image => {
-                    if (rowz % 3 === 0) {
-                        const row = document.createElement("div");
-                        row.classList.add("grid-3-flex")
-                        gallery.appendChild(row);
-                    }
-    
-                    const row = gallery.lastChild;
-                    rowz++;
-    
-                    const elem = document.createElement("div");
-                    row.appendChild(elem);
-    
-                    const container = document.createElement("div");
-                    container.classList.add("container");
-                    container.style.position = "relative"; // Needed to absolutely position the X
-                    elem.appendChild(container);
-    
-                    const zoomDiv = document.createElement("div");
-                    zoomDiv.classList.add("img-zoom");
-                    container.appendChild(zoomDiv);
-    
-                    const img = document.createElement("img");
-                    img.setAttribute("data-src", "/img/gallery/" + image.path);
-                    img.setAttribute("alt", image.description);
-                    img.setAttribute("style","width: 100%; aspect-ratio: 1; height: auto; image-rendering: crisp-edges; object-fit: cover; display: block; object-position: middle middle;")
-                    img.classList.add("b-lazy");
-                    zoomDiv.appendChild(img);
+<!-- CTA -->
+<section class="cta-band section-dark">
+    <div class="container">
+        <h2>Like What You See?</h2>
+        <p>Get your own custom deck or outdoor project started today with a free estimate.</p>
+        <a href="/contact" class="btn btn-primary btn-lg">
+            <ion-icon name="document-text-outline"></ion-icon>
+            Request a Free Quote
+        </a>
+    </div>
+</section>
 
-                    <% if(user ) { %>
-                        // Add the X delete button
-                        const deleteLink = document.createElement("a");
-                        deleteLink.href = `/delete/${image.id}`;
-                        deleteLink.textContent = "✖"; // Unicode X
-                        deleteLink.setAttribute("style", `
-                            position: absolute;
-                            bottom: 8px;
-                            right: 8px;
-                            background: rgba(0, 0, 0, 0.7);
-                            color: white;
-                            padding: 4px 8px;
-                            border-radius: 4px;
-                            font-weight: bold;
-                            font-size: 14px;
-                            text-decoration: none;
-                            transition: background 0.2s;
-                        `);
-                        deleteLink.addEventListener("mouseover", () => {
-                            deleteLink.style.background = "red";
-                        });
-                        deleteLink.addEventListener("mouseout", () => {
-                            deleteLink.style.background = "rgba(0, 0, 0, 0.7)";
-                        });
-
-                        container.appendChild(deleteLink);
-                    <% } %>
-                });
-            }
-    
-            buildGallery();
-        });
-
-       
-        document.addEventListener("DOMContentLoaded", function(event) { 
-            var scrollpos = localStorage.getItem('scrollpos');
-            if (scrollpos) window.scrollTo(0, scrollpos);
-        });
-
-        window.onbeforeunload = function(e) {
-            localStorage.setItem('scrollpos', window.scrollY);
-        };
-   
-    </script>
-    
-        
 </body>
-<footer>
-    <%- include("includes/footer") %>
-</footer>
+<footer><%- include("includes/footer") %></footer>
 </html>
+
+<script>
+// Shuffle gallery for variety
+function shuffleGallery() {
+    const grid = document.getElementById('galleryGrid');
+    if (!grid) return;
+    const items = Array.from(grid.children);
+    for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        grid.appendChild(items[j]);
+        items.splice(j, 1);
+    }
+}
+shuffleGallery();
+
+// Lightbox
+function openLightbox(src, caption) {
+    const lb = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    const cap = document.getElementById('lightbox-caption');
+    img.src = src;
+    img.alt = caption;
+    cap.textContent = caption;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+});
+
+// Prevent lightbox close when clicking the image
+document.getElementById('lightbox-img').addEventListener('click', (e) => e.stopPropagation());
+
+// Restore scroll position after delete
+document.addEventListener("DOMContentLoaded", function() {
+    const scrollpos = localStorage.getItem('galleryScroll');
+    if (scrollpos) { window.scrollTo(0, parseInt(scrollpos)); localStorage.removeItem('galleryScroll'); }
+});
+document.querySelectorAll('.gallery-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => localStorage.setItem('galleryScroll', window.scrollY));
+});
+</script>

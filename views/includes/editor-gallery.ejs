@@ -1,0 +1,86 @@
+<div class="editor-gallery-actions">
+    <button type="button" class="btn btn-outline btn-sm" id="btn-open-gallery-picker">Insert image from gallery</button>
+</div>
+
+<div id="gallery-picker-overlay" class="gallery-picker-overlay" aria-hidden="true">
+    <div class="gallery-picker-dialog" role="dialog" aria-modal="true" aria-labelledby="gallery-picker-title">
+        <div class="gallery-picker-header">
+            <h2 id="gallery-picker-title">Choose a gallery photo</h2>
+            <button type="button" class="gallery-picker-close" id="gallery-picker-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="gallery-picker-grid" id="gallery-picker-grid"></div>
+        <div class="gallery-picker-foot">Click a photo to insert it. The site applies sizing, lazy loading, and styling automatically (no wrapper divs needed).</div>
+    </div>
+</div>
+
+<% var _snippetMode = (typeof imageSnippetFormat !== 'undefined' && imageSnippetFormat === 'markdown') ? 'markdown' : 'html'; %>
+<script>
+(function () {
+    var snippetMode = <%- JSON.stringify(_snippetMode) %>;
+    var overlay = document.getElementById('gallery-picker-overlay');
+    var grid = document.getElementById('gallery-picker-grid');
+    var textarea = document.getElementById('markdown');
+    var openBtn = document.getElementById('btn-open-gallery-picker');
+    var closeBtn = document.getElementById('gallery-picker-close');
+    if (!overlay || !grid || !textarea) return;
+
+    function closePicker() {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+    }
+    function makeSnippet(src) {
+        if (snippetMode === 'markdown') return '![Gallery photo](' + src + ')';
+        return '<img src="' + src + '" alt="Gallery photo">';
+    }
+    function openPicker() {
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+        grid.innerHTML = '<p style="grid-column:1/-1;padding:20px;color:#666;">Loading…</p>';
+        fetch('/allimg', { credentials: 'same-origin' })
+            .then(function (r) { return r.json(); })
+            .then(function (paths) {
+                grid.innerHTML = '';
+                if (!paths || !paths.length) {
+                    grid.innerHTML = '<p style="grid-column:1/-1;padding:20px;">No images in gallery yet.</p>';
+                    return;
+                }
+                paths.forEach(function (src) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'gallery-picker-tile';
+                    var img = document.createElement('img');
+                    img.src = src;
+                    img.alt = '';
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                    btn.appendChild(img);
+                    btn.addEventListener('click', function () {
+                        var snippet = makeSnippet(src);
+                        var start = textarea.selectionStart || 0;
+                        var end = textarea.selectionEnd || 0;
+                        var v = textarea.value;
+                        textarea.value = v.slice(0, start) + '\n' + snippet + '\n' + v.slice(end);
+                        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                        textarea.focus();
+                        var pos = start + snippet.length + 2;
+                        textarea.setSelectionRange(pos, pos);
+                        closePicker();
+                    });
+                    grid.appendChild(btn);
+                });
+            })
+            .catch(function () {
+                grid.innerHTML = '<p style="grid-column:1/-1;padding:20px;color:#c0392b;">Could not load gallery. Are you logged in?</p>';
+            });
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openPicker);
+    if (closeBtn) closeBtn.addEventListener('click', closePicker);
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closePicker();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlay.classList.contains('is-open')) closePicker();
+    });
+})();
+</script>
