@@ -211,6 +211,13 @@ button:hover, .quote-button:hover {
 }
 .floating-call .call-icon { font-size: 18px; }
 .floating-call .call-text { display: inline; }
+@media (max-width: 900px) {
+    .floating-call {
+        top: auto;
+        bottom: 20px;
+        right: 16px;
+    }
+}
 @media (max-width: 480px) {
     .floating-call { padding: 10px 14px; }
     .floating-call .call-text { display: none; }
