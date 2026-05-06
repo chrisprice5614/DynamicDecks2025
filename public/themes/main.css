@@ -393,8 +393,18 @@ button:hover, .quote-button:hover {
     gap: 5px;
     cursor: pointer;
     padding: 8px;
+    border: none;
     border-radius: var(--radius-sm);
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+    -webkit-tap-highlight-color: transparent;
     transition: var(--transition);
+}
+.nav-hamburger:hover {
+    background: transparent;
+    box-shadow: none;
+    transform: none;
 }
 .nav-hamburger span {
     display: block;
