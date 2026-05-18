@@ -106,11 +106,9 @@ h5 { font-size: clamp(13px, 1.2vw, 17px); font-weight: 600; }
 .btn-primary {
     background-color: var(--brand-yellow);
     color: var(--accent-text);
-    box-shadow: 0 4px 16px rgba(246, 235, 34, 0.45);
 }
 .btn-primary:hover {
     background-color: var(--brand-yellow-hover);
-    box-shadow: 0 6px 24px rgba(34, 184, 245, 0.35);
     transform: translateY(-1px);
     color: var(--accent-text);
 }
@@ -165,28 +163,24 @@ button, .quote-button {
     font-size: 14px;
     cursor: pointer;
     transition: var(--transition);
-    box-shadow: 0 4px 14px rgba(246, 235, 34, 0.4);
 }
 button:hover, .quote-button:hover {
     background-color: var(--brand-yellow-hover);
-    box-shadow: 0 6px 20px rgba(34, 184, 245, 0.35);
     transform: translateY(-1px);
 }
 .galleryButton {
     background-color: var(--brand-blue);
     color: #fff;
-    box-shadow: 0 4px 14px rgba(34, 184, 245, 0.35);
 }
 .galleryButton:hover {
     background-color: var(--green-hover);
-    box-shadow: 0 6px 20px rgba(34, 184, 245, 0.48);
 }
 
 /* === FLOATING CALL BUTTON === */
 .floating-call {
     position: fixed;
-    top: 56px;
-    right: 16px;
+    bottom: 20px;
+    left: 16px;
     z-index: 4000;
     background-color: var(--brand-yellow);
     color: var(--accent-text);
@@ -197,7 +191,6 @@ button:hover, .quote-button:hover {
     display: flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 4px 20px rgba(246, 235, 34, 0.55);
     text-decoration: none;
     transition: var(--transition);
     border: none;
@@ -205,19 +198,11 @@ button:hover, .quote-button:hover {
 }
 .floating-call:hover {
     background-color: var(--brand-yellow-hover);
-    box-shadow: 0 6px 28px rgba(34, 184, 245, 0.45);
     transform: translateY(-2px);
     color: var(--accent-text);
 }
 .floating-call .call-icon { font-size: 18px; }
 .floating-call .call-text { display: inline; }
-@media (max-width: 900px) {
-    .floating-call {
-        top: auto;
-        bottom: 20px;
-        right: 16px;
-    }
-}
 @media (max-width: 480px) {
     .floating-call { padding: 10px 14px; }
     .floating-call .call-text { display: none; }
@@ -324,11 +309,9 @@ button:hover, .quote-button:hover {
     color: var(--accent-text) !important;
     padding: 10px 20px !important;
     border-radius: var(--radius-sm) !important;
-    box-shadow: 0 4px 14px rgba(246, 235, 34, 0.45);
 }
 .nav-cta:hover {
     background-color: var(--brand-yellow-hover) !important;
-    box-shadow: 0 6px 20px rgba(34, 184, 245, 0.4) !important;
     transform: translateY(-1px);
     color: var(--accent-text) !important;
 }
@@ -390,7 +373,8 @@ button:hover, .quote-button:hover {
 .nav-hamburger {
     display: none;
     flex-direction: column;
-    gap: 5px;
+    justify-content: center;
+    gap: 6px;
     cursor: pointer;
     padding: 8px;
     border: none;
@@ -408,8 +392,8 @@ button:hover, .quote-button:hover {
 }
 .nav-hamburger span {
     display: block;
-    width: 24px;
-    height: 2px;
+    width: 28px;
+    height: 3px;
     background-color: var(--nav-text);
     border-radius: 2px;
     transition: var(--transition);
@@ -890,7 +874,6 @@ form textarea { min-height: 100px; resize: vertical; }
     background: linear-gradient(135deg, var(--brand-blue-dark) 0%, var(--brand-blue) 100%);
     border-color: var(--brand-blue);
     color: #fff;
-    box-shadow: 0 4px 14px rgba(34, 184, 245, 0.35);
 }
 /* Stable grid: avoids column-masonry reflow when images load */
 .gallery-grid {
@@ -944,17 +927,7 @@ form textarea { min-height: 100px; resize: vertical; }
 .gallery-item:hover .gallery-item-overlay,
 .gallery-item:focus-visible .gallery-item-overlay { opacity: 1; }
 .gallery-item-overlay p {
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.35;
-    margin: 0;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.85);
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: none;
 }
 .gallery-delete-btn {
     position: absolute;
@@ -1058,19 +1031,7 @@ form textarea { min-height: 100px; resize: vertical; }
     .lightbox-next { right: 6px; }
 }
 .lightbox-caption {
-    position: fixed;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: min(720px, 92vw);
-    color: rgba(255,255,255,0.92);
-    font-size: 14px;
-    font-weight: 600;
-    text-align: center;
-    line-height: 1.4;
-    background: rgba(0,0,0,0.55);
-    padding: 10px 18px;
-    border-radius: 50px;
+    display: none;
 }
 
 /* Blazy */
@@ -1253,9 +1214,8 @@ form textarea { min-height: 100px; resize: vertical; }
     transition: var(--transition);
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(246, 235, 34, 0.35);
 }
-.footer-career-btn:hover { background-color: var(--brand-yellow-hover); box-shadow: 0 6px 20px rgba(34, 184, 245, 0.35); transform: translateY(-1px); color: var(--accent-text); }
+.footer-career-btn:hover { background-color: var(--brand-yellow-hover); transform: translateY(-1px); color: var(--accent-text); }
 .footer-bottom {
     border-top: 1px solid rgba(255,255,255,0.1);
     padding: 18px 0;

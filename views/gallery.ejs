@@ -115,9 +115,7 @@
                         fetchpriority="low"
                         sizes="(max-width: 480px) 100vw, (max-width: 900px) 50vw, 33vw"
                     >
-                    <div class="gallery-item-overlay" aria-hidden="true">
-                        <p><%= image.description %></p>
-                    </div>
+                    <div class="gallery-item-overlay" aria-hidden="true"></div>
                 </div>
                 <% if(user) { %>
                 <a href="/delete/<%= image.id %>" class="gallery-delete-btn" onclick="event.stopPropagation(); return confirm('Delete this photo?');" title="Delete photo">
@@ -184,8 +182,8 @@
         lightboxIndex = Math.max(0, Math.min(index, gallerySlides.length - 1));
         var slide = gallerySlides[lightboxIndex];
         img.src = slide.src;
-        img.alt = slide.caption || 'Gallery photo';
-        cap.textContent = slide.caption || '';
+        img.alt = 'Gallery photo';
+        cap.textContent = '';
         lb.classList.add('open');
         document.body.style.overflow = 'hidden';
         var single = gallerySlides.length < 2;
