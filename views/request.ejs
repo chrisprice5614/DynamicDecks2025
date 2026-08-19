@@ -13,17 +13,20 @@
     <div>
         <div class="success-icon-wrap"><ion-icon name="lock-closed-outline" aria-hidden="true"></ion-icon></div>
         <h1>Admin Login</h1>
-        <p>Click below to receive a secure sign-in link via email.</p>
-        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
-            <a href="/login/dynamic" class="btn btn-primary">
-                <ion-icon name="mail-outline"></ion-icon>
-                Send Login Link
-            </a>
-        </div>
-        <p style="margin-top: 20px; font-size: 13px; color: var(--text-muted);">
-            This site is managed by Chris Price Music.<br>
-            Questions? <a href="mailto:chris@chrispricemusic.net" style="color: var(--brand-blue);">chris@chrispricemusic.net</a>
-        </p>
+        <p>Enter the admin password to access the dashboard.</p>
+        <% if (typeof error !== 'undefined') { %>
+            <p style="color: #c0392b; font-size: 15px; margin-bottom: 16px;"><%= error %></p>
+        <% } %>
+        <form action="/login" method="POST" style="max-width: 360px; margin: 0 auto; text-align: left;">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" placeholder="Enter password" required autofocus>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+                <ion-icon name="log-in-outline"></ion-icon>
+                Sign In
+            </button>
+        </form>
     </div>
 </div>
 </body>

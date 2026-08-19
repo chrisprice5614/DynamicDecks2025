@@ -8,7 +8,6 @@ const axios = require('axios');
 const requestIp = require('request-ip');
 const bcrypt = require("bcryptjs") //npm install bcryptjs
 const cookieParser = require("cookie-parser")//npm install cookie-parser
-const nodemailer = require("nodemailer")
 const multer = require("multer")
 const sharp = require('sharp');
 const fs = require("fs");
@@ -16,6 +15,7 @@ const marked = require('marked');
 const puppeteer = require('puppeteer');
 // JWT secret fallback for local/dev to prevent crashes when .env missing
 const JWT_SECRET = process.env.JWTSECRET || 'local-dev-secret';
+const ADMIN_PASSWORD = process.env.ADMINPASSWORD;
 const fileStorageEngine = multer.diskStorage({
     
     destination: (req, file, cb) => {
@@ -96,30 +96,8 @@ app.use(express.static('/public'));
 app.use(body_parser.json())
 app.use(cookieParser())
 
-//mailing function
 async function sendEmail(to, subject, html) {
-    let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-            user: process.env.MAILNAME,
-            pass: process.env.MAILSECRET
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
-
-
-    let info = await transporter.sendMail({
-        from: '"Chris Price Music" <info@chrispricemusic.net>',
-        to: to,
-        subject: subject,
-        html: html
-
-    })
-
+    return;
 }
 
 db.pragma("journal_mode = WAL") //Makes it faster
@@ -1103,145 +1081,7 @@ app.get("/request", (req,res) => {
 })
 
 app.get("/login/:id", (req,res) => {
-    let emailTo = "chris@chrispricemusic.net";
-
-    if(req.params.id == "dynamic")
-        emailTo = "decksinbox@gmail.com"
-
-    const salt = bcrypt.genSaltSync(10)
-
-    const emailsecret = bcrypt.hashSync(req.params.id + Date.now().toString(), salt).replace(/[^a-zA-Z0-9]/g, '')
-    const emailSuperSecret = bcrypt.hashSync(emailsecret, salt);
-
-    const updateStatement = db.prepare("UPDATE login set key = ? where username = ?")
-    updateStatement.run(emailSuperSecret, req.params.id)
-
-    html =`
-    <html>
-        <head>
-            <title>Check it out!</title>
-            <link rel="icon" type="image/x-icon" href="https://www.dropbox.com/scl/fi/cvyp68qqihaakktohzyt8/favicon.ico?dl=1">
-            <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@200..700&display=swap" rel="stylesheet">
-            <link rel="stylesheet" href="https://use.typekit.net/ayz5zyc.css">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, caption {
-                    margin: 0;
-                    padding: 0;
-                    border: 0;
-                    outline: 0;
-                    vertical-align: baseline;
-                    background: transparent;
-                    font-family: "Open Sans", sans-serif;
-                    font-weight: 400;
-                    font-style: normal;
-                    line-height: 1.4em;
-                    word-wrap: break-word;
-                }
-                
-                :root{
-
-                --background-dark:rgb(0, 0, 0);
-                --background-light:rgb(0, 0, 0);
-                --color-light: #0d0b0e;
-                --color-dark: #211825;
-                --color-primary: #b026ff;
-                --color-primary-active: #5d00b1;
-                --color-secondary: #00d2b8;
-                --color-secondary-active: #009784;
-                --border-width: 1.5px;
-                --color-reverse: #333;
-                }
-
-                body{
-                    color: var(--color-light);
-                }
-
-                i {
-                    font-style: italic;
-                }
-
-
-                h1, h2, h3, h4, h5{
-                    margin: 12px;
-                    font-family: "quicksand", sans-serif;
-                    font-weight: 700;
-                    font-style: normal;
-                }
-
-                a{
-                    color: var(--color-light);
-                    font-weight: 600;
-                }
-
-                a:hover{
-                    color: var(--color-primary)
-                }
-                .card{
-                    margin-top: 10px;
-                    padding: 12px;
-                    background-color: var(--color-primary);
-                    box-shadow: 2px 2px 0px var(--color-dark);
-
-                }
-
-                .card a:hover{
-                    color: var(--color-primary-active);
-                }
-
-                .card small{
-                    color: var(--color-light);
-                }
-
-                hr{
-                    width: 80%;
-                    border-color: var(--color-primary)
-                }
-
-                .grid{
-                    display: grid;
-                    grid-template-columns: 1fr 1fr 1fr;
-                }
-
-                @media only screen and (width<=1000px){
-                    .grid{
-                        grid-template-columns: 1fr;
-                        margin-left: 8px;
-                        margin-right: 8px;
-                    }
-                }
-
-                p{
-                    margin: 12px;
-                }
-
-            </style>
-        </head>
-        <header style="text-align: center;">
-            <br>
-            <img src="https://raw.githubusercontent.com/chrisprice5614/Form-Test/refs/heads/main/logoBlack.png" alt="Chris price music logo">
-            
-        </header>
-        <body>
-            <br>
-            <h2>Sign into Dynamic Decks Website Admin</h2>
-            <p>Hello, you've sent a request to sign into the admin console for Dynamic Decks. If this was not you, please ignore this email.</p>
-            <p>Click <a href="https://dynamicdecksinc.com/login?user=${req.params.id}&key=${emailsecret}">here</a> to sign in</p>
-            
-        </body>
-        <br>
-        <hr>
-        <footer style="text-align: center;">
-            <br>
-            <a href="chrispricemusic.net">chrispricemusic.net</a>
-            <br>
-        </footer>
-    </html>
-    `
-
-    sendEmail(emailTo,"Sign In Request for Dynamic Decks, Inc",html)
-
-    res.render("check")
+    return res.redirect("/request")
 })
 
 app.get("/console", mustBeLoggedIn, (req,res) => {
@@ -1635,31 +1475,23 @@ app.get("/edit/:id", mustBeLoggedIn, (req,res) => {
 })
 
 app.get("/login", (req,res) => {
-    const user = req.query.user
-    const key = req.query.key
+    return res.redirect("/request")
+})
 
-    try {
-        const getKeyStatement = db.prepare("SELECT * FROM login WHERE username = ?")
-        const compareKey = getKeyStatement.get(user).key
+app.post("/login", (req,res) => {
+    const pw = (req.body && req.body.password) ? req.body.password : ''
+    if (pw === ADMIN_PASSWORD) {
+        const ourTokenValue = jwt.sign({exp: Math.floor(Date.now() / 1000) + (60*60*4), user: 'admin'}, JWT_SECRET)
 
-        const compare = bcrypt.compareSync(key, compareKey)
-
-        if(compare)
-        {
-            const ourTokenValue = jwt.sign({exp: Math.floor(Date.now() / 1000) + (60*60*4), key: key}, JWT_SECRET) //Creating a token for logging in
-
-            res.cookie("login",ourTokenValue, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "lax",
-                maxAge: 1000 * 60 * 60 * 4
-            }) //name, string to remember,
-        }
-    } catch(err) {
-        return res.redirect("/")
+        res.cookie("login",ourTokenValue, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "lax",
+            maxAge: 1000 * 60 * 60 * 4
+        })
+        return res.redirect("/console")
     }
-
-    return res.redirect("/console")
+    return res.render("request", { error: 'Invalid password' })
 })
 
 app.use((req, res, next) => {
